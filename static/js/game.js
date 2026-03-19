@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const whatsapp = document.getElementById("whatsapp");
   const livesEl = document.getElementById("lives");
 
+  if (!startBtn || !board || !result || !resultText || !whatsapp || !livesEl) {
+    console.error("Elementos do jogo não encontrados no HTML.");
+    return;
+  }
+
   let lives = 3;
   let found = {};
   let playing = false;
@@ -32,23 +37,20 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
+    return [...array].sort(() => Math.random() - 0.5);
   }
 
   function generateBoard() {
     const round = getRound();
 
-    // 1ª rodada: perde com ovos podres
     if (round === 1) {
       return shuffle(["💣", "💣", "💣", "💣", "💣", "💣", "TENTE", "TENTE"]);
     }
 
-    // 2ª rodada: tensão
     if (round === 2) {
       return shuffle(["💣", "💣", "TENTE", "TENTE", prizes[0], prizes[1], prizes[2], prizes[3]]);
     }
 
-    // 3ª em diante: ganha
     const prize = prizes[Math.floor(Math.random() * prizes.length)];
     return shuffle([prize, prize, prize, "💣", "💣", "TENTE", prizes[0], prizes[1]]);
   }
@@ -135,22 +137,20 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  if (startBtn) {
-    startBtn.addEventListener("click", async function () {
-      try {
-        const res = await fetch("/start_play", { method: "POST" });
-        const data = await res.json();
+  startBtn.addEventListener("click", async function () {
+    try {
+      const res = await fetch("/start_play", { method: "POST" });
+      const data = await res.json();
 
-        if (!data.ok) {
-          alert("Sem jogadas disponíveis.");
-          return;
-        }
-
-        startInternal(false);
-      } catch (e) {
-        alert("Erro ao iniciar o jogo.");
-        console.error(e);
+      if (!data.ok) {
+        alert("Sem jogadas disponíveis.");
+        return;
       }
-    });
-  }
+
+      startInternal(false);
+    } catch (e) {
+      alert("Erro ao iniciar o jogo.");
+      console.error(e);
+    }
+  });
 });
