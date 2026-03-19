@@ -33,11 +33,25 @@ def db():
     conn.row_factory = sqlite3.Row
     return conn
 
+import sqlite3
+
 def init_db():
-    conn = db(); c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS clients (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL,whatsapp TEXT NOT NULL UNIQUE,password TEXT NOT NULL,plays_total INTEGER NOT NULL DEFAULT 1,plays_used INTEGER NOT NULL DEFAULT 0,first_access_done INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL)")
-    c.execute("CREATE TABLE IF NOT EXISTS plays (id INTEGER PRIMARY KEY AUTOINCREMENT,client_id INTEGER NOT NULL,played_at TEXT NOT NULL,outcome TEXT NOT NULL,prize TEXT NOT NULL,board_json TEXT NOT NULL)")
-    conn.commit(); conn.close()
+    conn = sqlite3.connect('database.sqlite3')
+    c = conn.cursor()
+
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS clients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT,
+        whatsapp TEXT,
+        senha TEXT,
+        premio TEXT,
+        horario TEXT
+    )
+    ''')
+
+    conn.commit()
+    conn.close()
 
 def digits_only(s): return re.sub(r"\D+", "", s or "")
 def upper(s): return (s or "").strip().upper()
@@ -191,6 +205,7 @@ def dashboard():
     return render_template("dashboard.html", rows=rows, total_clients=total_clients, total_plays=total_plays, format_whatsapp=format_whatsapp)
 
 import os
-
-port = int(os.environ.get("PORT", 8000))
-app.run(host="0.0.0.0", port=port)
+if __name__ == "__main__":
+    init_db()
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host="0.0.0.0", port=port)
