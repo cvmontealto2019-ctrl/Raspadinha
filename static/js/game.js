@@ -1,23 +1,350 @@
 const PRIZE_COLORS = {
-  "10 CONVIDADOS ADICIONAIS":"#ff7a18",
-  "15 CRIANÇAS DE 6 A 10 ANOS":"#ff5e94",
-  "30 CRIANÇAS DE 0 A 8 ANOS":"#18a0fb",
-  "DESCONTO DE R$350,00":"#16a34a",
-  "TENTE NOVAMENTE":"#9a7d8f"
+  "10 CONVIDADOS ADICIONAIS": "#ff7a18",
+  "15 CRIANÇAS DE 6 A 10 ANOS": "#ff5e94",
+  "30 CRIANÇAS DE 0 A 8 ANOS": "#18a0fb",
+  "DESCONTO DE R$350,00": "#16a34a",
+  "TENTE NOVAMENTE": "#9a7d8f"
 };
-let finished = false, confettiRunning = false, playStarted = false;
-const qs = s => document.querySelector(s), qsa = s => Array.from(document.querySelectorAll(s));
 
-function showToast(message){const toast=qs("#toast"); if(!toast)return; toast.textContent=message; toast.classList.add("show"); setTimeout(()=>toast.classList.remove("show"),2200);}
-function showConfetti(){const canvas=qs("#confettiCanvas"); if(!canvas)return; const ctx=canvas.getContext("2d"); canvas.width=window.innerWidth; canvas.height=window.innerHeight; const colors=["#ff8a3d","#ffd95b","#ff6ea5","#87e2ff","#9d86ff","#6de0a5","#ffffff"]; const pieces=Array.from({length:340},()=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height,r:3+Math.random()*7,vy:2+Math.random()*4,vx:-2+Math.random()*4,rot:Math.random()*Math.PI,vr:-0.25+Math.random()*0.5,color:colors[Math.floor(Math.random()*colors.length)]})); confettiRunning=true; let frame=0; (function tick(){if(!confettiRunning)return; frame++; ctx.clearRect(0,0,canvas.width,canvas.height); pieces.forEach(p=>{p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; if(p.y>canvas.height+24){p.y=-24; p.x=Math.random()*canvas.width;} ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color; ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2); ctx.restore();}); if(frame<320) requestAnimationFrame(tick); else {confettiRunning=false; ctx.clearRect(0,0,canvas.width,canvas.height);}})();}
-function showResult(isWin, prize, whatsappText, whatsappNumber, remaining){const bunny=qs("#floatingBunny"); if(bunny){bunny.classList.add("show"); setTimeout(()=>bunny.classList.remove("show"),4200);} const remainingPlays=qs("#remainingPlays"); if(remainingPlays) remainingPlays.textContent=remaining; const overlay=qs("#resultOverlay"), emoji=qs("#resultEmoji"), title=qs("#resultTitle"), text=qs("#resultText"), waBtn=qs("#waBtn"); if(isWin){showConfetti(); emoji.textContent="🎉"; title.textContent="Parabéns!"; text.innerHTML=`VOCÊ GANHOU <strong style="color:${PRIZE_COLORS[prize]||"#ff7a18"}">${prize}</strong>.`; waBtn.style.display="inline-flex"; waBtn.href=`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;} else {emoji.textContent="🐣"; title.textContent="Que pena!"; text.innerHTML=`DESSA VEZ APARECEU <strong style="color:${PRIZE_COLORS["TENTE NOVAMENTE"]}">TENTE NOVAMENTE</strong>.`; waBtn.style.display="none";} overlay.classList.add("show");}
+let finished = false;
+let confettiRunning = false;
+let playStarted = false;
 
-function buildEggCover(canvas, theme){const ctx=canvas.getContext("2d",{willReadFrequently:true}); const rect=canvas.getBoundingClientRect(); const ratio=Math.max(window.devicePixelRatio||1,1); canvas.width=Math.floor(rect.width*ratio); canvas.height=Math.floor(rect.height*ratio); ctx.scale(ratio,ratio); const w=rect.width,h=rect.height; const gradients={gold:["#fff0b5","#ffd95c","#ffca2d"],rose:["#ffd8ea","#ff91bc","#ff6ca3"],sky:["#daf7ff","#9ce6ff","#74d5ff"],lavender:["#eee0ff","#c6abff","#a686ff"],mint:["#dcffe8","#a5f0c3","#6cdb9e"],sunset:["#ffe6c9","#ffc27e","#ff9a57"]}; const c=gradients[theme]||gradients.gold; const grad=ctx.createLinearGradient(0,0,0,h); grad.addColorStop(0,c[0]); grad.addColorStop(.5,c[1]); grad.addColorStop(1,c[2]); ctx.fillStyle=grad; ctx.fillRect(0,0,w,h); ctx.globalAlpha=.14; ctx.fillStyle="#ffffff"; for(let i=0;i<10;i++){ctx.fillRect((i*18)%w,0,9,h)} ctx.globalAlpha=1; ctx.fillStyle="rgba(255,255,255,.30)"; ctx.beginPath(); ctx.ellipse(w*.30,h*.22,w*.18,h*.12,-.45,0,Math.PI*2); ctx.fill(); ctx.fillStyle="rgba(255,255,255,.74)"; const barWidth=w*.45, barHeight=12, barX=(w-barWidth)/2, barY=h*.50, radius=barHeight/2; ctx.beginPath(); ctx.moveTo(barX+radius,barY); ctx.lineTo(barX+barWidth-radius,barY); ctx.quadraticCurveTo(barX+barWidth,barY,barX+barWidth,barY+radius); ctx.lineTo(barX+barWidth,barY+barHeight-radius); ctx.quadraticCurveTo(barX+barWidth,barY+barHeight,barX+barWidth-radius,barY+barHeight); ctx.lineTo(barX+radius,barY+barHeight); ctx.quadraticCurveTo(barX,barY+barHeight,barX,barY+barHeight-radius); ctx.lineTo(barX,barY+radius); ctx.quadraticCurveTo(barX,barY,barX+radius,barY); ctx.fill();}
-function transparentPercent(canvas){const ctx=canvas.getContext("2d",{willReadFrequently:true}); const data=ctx.getImageData(0,0,canvas.width,canvas.height).data; let transparent=0; for(let i=3;i<data.length;i+=4){if(data[i]<30) transparent++;} return transparent/(data.length/4);}
-function checkGameState(){if(finished)return; const counts={}; qsa(".egg-scratch-card.revealed").forEach(card=>{const value=card.dataset.value; counts[value]=(counts[value]||0)+1;}); const winningPrize=Object.keys(counts).find(k=>k!=="TENTE NOVAMENTE" && counts[k]>=3); if(winningPrize){finished=true; fetch("/finish_play",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({outcome:"WIN",prize:winningPrize})}).then(r=>r.json()).then(data=>showResult(true, winningPrize, data.whatsapp_text, data.whatsapp_number, data.remaining)); return;} const revealedCount=qsa(".egg-scratch-card.revealed").length; if(revealedCount===6){finished=true; fetch("/finish_play",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({outcome:"LOSE",prize:"TENTE NOVAMENTE"})}).then(r=>r.json()).then(data=>showResult(false, "TENTE NOVAMENTE", data.whatsapp_text, data.whatsapp_number, data.remaining));}}
-function revealEgg(card){if(card.classList.contains("revealed")) return; card.classList.add("revealed"); const canvas=card.querySelector("canvas"); if(canvas) canvas.style.display="none"; checkGameState();}
-function attachEggScratch(canvas){const card=canvas.closest(".egg-scratch-card"); const theme=card.dataset.theme; buildEggCover(canvas, theme); let down=false; const scratch=(clientX,clientY)=>{const rect=canvas.getBoundingClientRect(); const ratio=canvas.width/rect.width; const x=(clientX-rect.left)*ratio, y=(clientY-rect.top)*ratio; const ctx=canvas.getContext("2d",{willReadFrequently:true}); ctx.globalCompositeOperation="destination-out"; ctx.beginPath(); ctx.arc(x/ratio,y/ratio,18,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation="source-over"; if(transparentPercent(canvas)>=0.40) revealEgg(card);}; canvas.addEventListener("pointerdown",e=>{if(finished)return; down=true; scratch(e.clientX,e.clientY);}); canvas.addEventListener("pointermove",e=>{if(!down||finished)return; scratch(e.clientX,e.clientY);}); window.addEventListener("pointerup",()=>{down=false;});}
-function renderBoard(board){const eggsBoard=qs("#eggsBoard"); eggsBoard.innerHTML=""; board.forEach(item=>{const prizeClass=item.value.length>20?"small-text":"", loseClass=item.value==="TENTE NOVAMENTE"?"lose":""; const card=document.createElement("article"); card.className=`egg-scratch-card egg-theme-${item.theme}`; card.dataset.value=item.value; card.dataset.theme=item.theme; card.innerHTML=`<div class="egg-title">${item.name}</div><div class="egg-scratch"><div class="egg-prize ${prizeClass} ${loseClass}" style="color:${PRIZE_COLORS[item.value]||"#5f5675"}">${item.value}</div><canvas class="egg-canvas"></canvas></div>`; eggsBoard.appendChild(card);}); qsa(".egg-canvas").forEach(attachEggScratch);}
-async function startPlay(){if(playStarted) return; const res=await fetch("/start_play",{method:"POST"}); const data=await res.json(); if(!data.ok){showToast("VOCÊ NÃO TEM JOGADAS DISPONÍVEIS."); return;} playStarted=true; finished=false; const remainingPlays=qs("#remainingPlays"); if(remainingPlays) remainingPlays.textContent=data.remaining; renderBoard(data.board); qs("#startPlayBtn").style.display="none";}
-window.addEventListener("resize",()=>{const canvas=qs("#confettiCanvas"); if(canvas){canvas.width=window.innerWidth; canvas.height=window.innerHeight;}});
-window.addEventListener("DOMContentLoaded",()=>{qs("#startPlayBtn").addEventListener("click",startPlay); qs("#closeResultBtn").addEventListener("click",()=>qs("#resultOverlay").classList.remove("show"));});
+const qs = (s) => document.querySelector(s);
+const qsa = (s) => Array.from(document.querySelectorAll(s));
+
+function showToast(message) {
+  const toast = qs("#toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function resizeConfettiCanvas() {
+  const canvas = qs("#confetti-canvas");
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function showConfetti() {
+  const canvas = qs("#confetti-canvas");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  resizeConfettiCanvas();
+
+  const colors = ["#ff8a3d", "#ffd95b", "#ff6ea5", "#87e2ff", "#9d86ff", "#6de0a5", "#ffffff"];
+  const pieces = Array.from({ length: 340 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    r: 3 + Math.random() * 7,
+    vy: 2 + Math.random() * 4,
+    vx: -2 + Math.random() * 4,
+    rot: Math.random() * Math.PI,
+    vr: -0.25 + Math.random() * 0.5,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  }));
+
+  confettiRunning = true;
+  let frame = 0;
+
+  (function tick() {
+    if (!confettiRunning) return;
+
+    frame++;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    pieces.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+
+      if (p.y > canvas.height + 24) {
+        p.y = -24;
+        p.x = Math.random() * canvas.width;
+      }
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r, -p.r, p.r * 2, p.r * 2);
+      ctx.restore();
+    });
+
+    if (frame < 320) {
+      requestAnimationFrame(tick);
+    } else {
+      confettiRunning = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  })();
+}
+
+function showResult(isWin, prize, whatsappText, whatsappNumber, remaining) {
+  const remainingPlays = qs("#remaining-count");
+  if (remainingPlays) remainingPlays.textContent = remaining;
+
+  const overlay = qs("#result-modal");
+  const emoji = qs("#result-icon");
+  const title = qs("#result-title");
+  const text = qs("#result-message");
+  const waBtn = qs("#whatsapp-btn");
+
+  if (!overlay || !emoji || !title || !text || !waBtn) return;
+
+  if (isWin) {
+    showConfetti();
+    emoji.textContent = "🎉";
+    title.textContent = "Parabéns!";
+    text.innerHTML = `VOCÊ GANHOU <strong style="color:${PRIZE_COLORS[prize] || "#ff7a18"}">${prize}</strong>.`;
+    waBtn.style.display = "inline-flex";
+    waBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
+  } else {
+    emoji.textContent = "🐣";
+    title.textContent = "Que pena!";
+    text.innerHTML = `DESSA VEZ APARECEU <strong style="color:${PRIZE_COLORS["TENTE NOVAMENTE"]}">TENTE NOVAMENTE</strong>.`;
+    waBtn.style.display = "none";
+  }
+
+  overlay.classList.remove("hidden");
+}
+
+function buildEggCover(canvas, theme) {
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const rect = canvas.getBoundingClientRect();
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  canvas.width = Math.floor(rect.width * ratio);
+  canvas.height = Math.floor(rect.height * ratio);
+  ctx.scale(ratio, ratio);
+
+  const w = rect.width;
+  const h = rect.height;
+
+  const gradients = {
+    gold: ["#fff0b5", "#ffd95c", "#ffca2d"],
+    rose: ["#ffd8ea", "#ff91bc", "#ff6ca3"],
+    sky: ["#daf7ff", "#9ce6ff", "#74d5ff"],
+    lavender: ["#eee0ff", "#c6abff", "#a686ff"],
+    mint: ["#dcffe8", "#a5f0c3", "#6cdb9e"],
+    sunset: ["#ffe6c9", "#ffc27e", "#ff9a57"]
+  };
+
+  const c = gradients[theme] || gradients.gold;
+  const grad = ctx.createLinearGradient(0, 0, 0, h);
+  grad.addColorStop(0, c[0]);
+  grad.addColorStop(0.5, c[1]);
+  grad.addColorStop(1, c[2]);
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.globalAlpha = 0.14;
+  ctx.fillStyle = "#ffffff";
+  for (let i = 0; i < 10; i++) {
+    ctx.fillRect((i * 18) % w, 0, 9, h);
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "rgba(255,255,255,.30)";
+  ctx.beginPath();
+  ctx.ellipse(w * 0.30, h * 0.22, w * 0.18, h * 0.12, -0.45, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255,255,255,.74)";
+  const barWidth = w * 0.45;
+  const barHeight = 12;
+  const barX = (w - barWidth) / 2;
+  const barY = h * 0.50;
+  const radius = barHeight / 2;
+
+  ctx.beginPath();
+  ctx.moveTo(barX + radius, barY);
+  ctx.lineTo(barX + barWidth - radius, barY);
+  ctx.quadraticCurveTo(barX + barWidth, barY, barX + barWidth, barY + radius);
+  ctx.lineTo(barX + barWidth, barY + barHeight - radius);
+  ctx.quadraticCurveTo(barX + barWidth, barY + barHeight, barX + barWidth - radius, barY + barHeight);
+  ctx.lineTo(barX + radius, barY + barHeight);
+  ctx.quadraticCurveTo(barX, barY + barHeight, barX, barY + barHeight - radius);
+  ctx.lineTo(barX, barY + radius);
+  ctx.quadraticCurveTo(barX, barY, barX + radius, barY);
+  ctx.fill();
+}
+
+function transparentPercent(canvas) {
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  let transparent = 0;
+
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] < 30) transparent++;
+  }
+
+  return transparent / (data.length / 4);
+}
+
+function checkGameState() {
+  if (finished) return;
+
+  const counts = {};
+  qsa(".game-egg-card.revealed").forEach((card) => {
+    const value = card.dataset.value;
+    counts[value] = (counts[value] || 0) + 1;
+  });
+
+  const winningPrize = Object.keys(counts).find(
+    (key) => key !== "TENTE NOVAMENTE" && counts[key] >= 3
+  );
+
+  if (winningPrize) {
+    finished = true;
+    fetch("/finish_play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ outcome: "WIN", prize: winningPrize })
+    })
+      .then((r) => r.json())
+      .then((data) => showResult(true, winningPrize, data.whatsapp_text, data.whatsapp_number, data.remaining));
+    return;
+  }
+
+  const revealedCount = qsa(".game-egg-card.revealed").length;
+
+  if (revealedCount === 6) {
+    finished = true;
+    fetch("/finish_play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ outcome: "LOSE", prize: "TENTE NOVAMENTE" })
+    })
+      .then((r) => r.json())
+      .then((data) => showResult(false, "TENTE NOVAMENTE", data.whatsapp_text, data.whatsapp_number, data.remaining));
+  }
+}
+
+function revealEgg(card) {
+  if (card.classList.contains("revealed")) return;
+  card.classList.add("revealed");
+
+  const canvas = card.querySelector("canvas");
+  if (canvas) canvas.style.display = "none";
+
+  checkGameState();
+}
+
+function attachEggScratch(canvas) {
+  const card = canvas.closest(".game-egg-card");
+  if (!card) return;
+
+  const theme = card.dataset.theme;
+  buildEggCover(canvas, theme);
+
+  let down = false;
+
+  const scratch = (clientX, clientY) => {
+    const rect = canvas.getBoundingClientRect();
+    const ratio = canvas.width / rect.width;
+    const x = (clientX - rect.left) * ratio;
+    const y = (clientY - rect.top) * ratio;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(x / ratio, y / ratio, 18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = "source-over";
+
+    if (transparentPercent(canvas) >= 0.40) {
+      revealEgg(card);
+    }
+  };
+
+  canvas.addEventListener("pointerdown", (e) => {
+    if (finished) return;
+    down = true;
+    scratch(e.clientX, e.clientY);
+  });
+
+  canvas.addEventListener("pointermove", (e) => {
+    if (!down || finished) return;
+    scratch(e.clientX, e.clientY);
+  });
+
+  window.addEventListener("pointerup", () => {
+    down = false;
+  });
+}
+
+function renderBoard(board) {
+  const eggsBoard = qs("#eggs-board");
+  if (!eggsBoard) return;
+
+  eggsBoard.innerHTML = "";
+
+  board.forEach((item) => {
+    const prizeClass = item.value.length > 20 ? "small-text" : "";
+    const loseClass = item.value === "TENTE NOVAMENTE" ? "lose" : "";
+
+    const card = document.createElement("article");
+    card.className = `game-egg-card theme-${item.theme}`;
+    card.dataset.value = item.value;
+    card.dataset.theme = item.theme;
+
+    card.innerHTML = `
+      <div class="game-egg-label">${item.name}</div>
+      <div class="game-egg-wrap">
+        <div class="game-egg-prize ${prizeClass} ${loseClass}" style="color:${PRIZE_COLORS[item.value] || "#5f5675"}">
+          ${item.value}
+        </div>
+        <canvas class="game-egg-canvas"></canvas>
+      </div>
+    `;
+
+    eggsBoard.appendChild(card);
+  });
+
+  qsa(".game-egg-canvas").forEach(attachEggScratch);
+}
+
+async function startPlay() {
+  if (playStarted) return;
+
+  const res = await fetch("/start_play", { method: "POST" });
+  const data = await res.json();
+
+  if (!data.ok) {
+    showToast("VOCÊ NÃO TEM JOGADAS DISPONÍVEIS.");
+    return;
+  }
+
+  playStarted = true;
+  finished = false;
+
+  const remainingPlays = qs("#remaining-count");
+  if (remainingPlays) remainingPlays.textContent = data.remaining;
+
+  renderBoard(data.board);
+
+  const startBtn = qs("#start-btn");
+  if (startBtn) startBtn.style.display = "none";
+}
+
+window.addEventListener("resize", resizeConfettiCanvas);
+
+window.addEventListener("DOMContentLoaded", () => {
+  resizeConfettiCanvas();
+
+  const startBtn = qs("#start-btn");
+  const closeBtn = qs("#close-result-btn");
+
+  if (startBtn) startBtn.addEventListener("click", startPlay);
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      const modal = qs("#result-modal");
+      if (modal) modal.classList.add("hidden");
+    });
+  }
+});
