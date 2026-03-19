@@ -1,1 +1,243 @@
-<!doctype html><html lang="pt-br"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><link rel="stylesheet" href="/static/css/styles.css"/><title>Ovos Raspáveis • Biruta Park</title></head><body class="theme-easter"><canvas id="confettiCanvas" class="confetti-canvas"></canvas><div class="floating-bunny" id="floatingBunny">🐰</div><main class="page-shell"><header class="game-topbar"><div class="brand-mini"><img src="/static/img/logo.png" alt="Logo" onerror="this.style.display='none'"><div><div class="eyebrow">BIRUTA PARK</div><h1>PÁSCOA PREMIADA</h1></div></div><div class="status-pill"><span>JOGADAS RESTANTES</span><strong id="remainingPlays">{{ rem }}</strong></div></header><section class="hero-card"><div class="hero-copy"><div class="tag">OVOS RASPÁVEIS</div><h2>Raspe os ovos e descubra seu prêmio</h2><p>Cada ovo esconde uma surpresa. Você ganha quando encontrar 3 prêmios iguais. Alguns ovos podem mostrar “Tente novamente”.</p></div><div class="hero-actions"><button class="btn btn-gold" id="startPlayBtn" type="button">COMEÇAR</button></div></section><section class="eggs-board" id="eggsBoard"></section></main><div class="result-overlay" id="resultOverlay"><div class="result-card"><div class="result-emoji" id="resultEmoji">🎉</div><h3 id="resultTitle">Parabéns!</h3><div id="resultText"></div><p class="result-note">Válido apenas para os pacotes Gourmet, Cheff, Biruta ou Birutinha.</p><div class="result-actions"><a id="waBtn" class="btn btn-green" href="#" target="_blank" rel="noopener">CHAMAR NO WHATSAPP</a><button class="btn btn-light" type="button" id="closeResultBtn">FECHAR</button></div></div></div><div class="toast" id="toast"></div><script src="/static/js/game.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Páscoa Premiada - Biruta Park</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+<style>
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#fff7e6,#ffe0b2);
+  text-align:center;
+}
+
+/* HEADER */
+.header{
+  padding:20px;
+}
+
+.logo{
+  width:80px;
+}
+
+.title{
+  font-size:28px;
+  color:#ff7a00;
+  font-weight:bold;
+}
+
+.subtitle{
+  color:#777;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  max-width:350px;
+  margin:20px auto;
+}
+
+/* CARD */
+.card{
+  position:relative;
+  height:100px;
+  border-radius:20px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 8px 20px rgba(0,0,0,.1);
+}
+
+/* PRIZE */
+.prize{
+  position:absolute;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  padding:10px;
+  text-align:center;
+  font-size:13px;
+}
+
+/* SCRATCH CANVAS */
+canvas{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+}
+
+/* BUTTON */
+.btn{
+  margin-top:20px;
+  padding:14px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(45deg,#ff7a00,#ffb300);
+  color:#fff;
+  font-weight:bold;
+  font-size:16px;
+  cursor:pointer;
+}
+
+/* CONFETTI */
+.confetti{
+  position:fixed;
+  width:10px;
+  height:10px;
+  background:red;
+  top:-10px;
+  animation:fall linear infinite;
+}
+
+@keyframes fall{
+  to{
+    transform:translateY(100vh) rotate(360deg);
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo">
+  <div class="title">Páscoa Premiada</div>
+  <div class="subtitle">Olá {{ name }} | Jogadas restantes: {{ rem }}</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<button class="btn" onclick="rasparTudo()">Raspar tudo</button>
+
+<script>
+
+let board = []
+let resultados = []
+
+function iniciar(){
+  fetch('/start_play',{method:'POST'})
+  .then(r=>r.json())
+  .then(data=>{
+    board = data.board
+    montar()
+  })
+}
+
+function montar(){
+  const grid = document.getElementById('grid')
+  grid.innerHTML=''
+
+  board.forEach((item,index)=>{
+    const div = document.createElement('div')
+    div.className='card'
+
+    const prize = document.createElement('div')
+    prize.className='prize'
+    prize.innerText=item.value
+
+    const canvas = document.createElement('canvas')
+
+    div.appendChild(prize)
+    div.appendChild(canvas)
+    grid.appendChild(div)
+
+    criarRaspagem(canvas,index,item.value)
+  })
+}
+
+function criarRaspagem(canvas,index,value){
+  const ctx = canvas.getContext('2d')
+
+  canvas.width = canvas.offsetWidth
+  canvas.height = canvas.offsetHeight
+
+  ctx.fillStyle = "#ccc"
+  ctx.fillRect(0,0,canvas.width,canvas.height)
+
+  let raspado = false
+
+  function raspar(x,y){
+    ctx.globalCompositeOperation = "destination-out"
+    ctx.beginPath()
+    ctx.arc(x,y,15,0,Math.PI*2)
+    ctx.fill()
+  }
+
+  canvas.addEventListener('mousemove',e=>{
+    if(e.buttons===1){
+      raspar(e.offsetX,e.offsetY)
+      verificar(index,value)
+    }
+  })
+
+  canvas.addEventListener('touchmove',e=>{
+    const rect = canvas.getBoundingClientRect()
+    const x = e.touches[0].clientX - rect.left
+    const y = e.touches[0].clientY - rect.top
+    raspar(x,y)
+    verificar(index,value)
+  })
+
+  function verificar(i,val){
+    if(!raspado){
+      raspado = true
+      resultados.push(val)
+
+      const count = resultados.filter(x=>x===val).length
+
+      if(val !== "TENTE NOVAMENTE" && count >= 3){
+        ganhar(val)
+      }
+    }
+  }
+}
+
+function rasparTudo(){
+  document.querySelectorAll('canvas').forEach(c=>{
+    const ctx = c.getContext('2d')
+    ctx.clearRect(0,0,c.width,c.height)
+  })
+}
+
+function ganhar(premio){
+
+  for(let i=0;i<100;i++){
+    const c = document.createElement('div')
+    c.className='confetti'
+    c.style.left=Math.random()*100+'vw'
+    c.style.background=['red','yellow','orange'][Math.floor(Math.random()*3)]
+    c.style.animationDuration=(Math.random()*2+2)+'s'
+    document.body.appendChild(c)
+  }
+
+  fetch('/finish_play',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      outcome:"WIN",
+      prize:premio
+    })
+  })
+
+  setTimeout(()=>{
+    window.location.href=`https://wa.me/5516997913686?text=Ganhei ${premio} na raspadinha!`
+  },2000)
+}
+
+iniciar()
+
+</script>
+
+</body>
+</html>
