@@ -7,11 +7,18 @@ const BP_PRIZE_COLORS = {
 };
 
 let bpFinished = false;
-let bpConfettiRunning = false;
 let bpPlayStarted = false;
+let bpConfettiRunning = false;
 
 const bpQs = (s) => document.querySelector(s);
 const bpQsa = (s) => Array.from(document.querySelectorAll(s));
+
+function bpResizeConfettiCanvas() {
+  const canvas = bpQs("#bp-confetti");
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
 
 function bpShowToast(message) {
   const toast = bpQs("#bp-toast");
@@ -19,13 +26,6 @@ function bpShowToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 2200);
-}
-
-function bpResizeConfettiCanvas() {
-  const canvas = bpQs("#bp-confetti");
-  if (!canvas) return;
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
 }
 
 function bpShowConfetti() {
@@ -36,14 +36,14 @@ function bpShowConfetti() {
   bpResizeConfettiCanvas();
 
   const colors = ["#ff8a3d", "#ffd95b", "#ff6ea5", "#87e2ff", "#9d86ff", "#6de0a5", "#ffffff"];
-  const pieces = Array.from({ length: 320 }, () => ({
+  const pieces = Array.from({ length: 260 }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * -canvas.height,
-    r: 3 + Math.random() * 7,
+    r: 3 + Math.random() * 6,
     vy: 2 + Math.random() * 4,
     vx: -2 + Math.random() * 4,
     rot: Math.random() * Math.PI,
-    vr: -0.25 + Math.random() * 0.5,
+    vr: -0.2 + Math.random() * 0.4,
     color: colors[Math.floor(Math.random() * colors.length)]
   }));
 
@@ -61,8 +61,8 @@ function bpShowConfetti() {
       p.y += p.vy;
       p.rot += p.vr;
 
-      if (p.y > canvas.height + 24) {
-        p.y = -24;
+      if (p.y > canvas.height + 20) {
+        p.y = -20;
         p.x = Math.random() * canvas.width;
       }
 
@@ -74,7 +74,7 @@ function bpShowConfetti() {
       ctx.restore();
     });
 
-    if (frame < 320) {
+    if (frame < 280) {
       requestAnimationFrame(tick);
     } else {
       bpConfettiRunning = false;
@@ -84,14 +84,15 @@ function bpShowConfetti() {
 }
 
 function bpOpenResult(isWin, prize, whatsappText, whatsappNumber, remaining) {
-  const remainingEl = bpQs("#bp-remaining");
   const modal = bpQs("#bp-result-modal");
   const icon = bpQs("#bp-result-icon");
   const title = bpQs("#bp-result-title");
   const message = bpQs("#bp-result-message");
   const waBtn = bpQs("#bp-wa-btn");
+  const remainingEl = bpQs("#bp-remaining");
 
   if (remainingEl) remainingEl.textContent = remaining;
+
   if (!modal || !icon || !title || !message || !waBtn) return;
 
   if (isWin) {
@@ -197,7 +198,7 @@ function bpRevealEgg(card) {
   if (card.classList.contains("revealed")) return;
   card.classList.add("revealed");
 
-  const canvas = card.querySelector("canvas");
+  const canvas = card.querySelector(".bp-egg-canvas");
   if (canvas) canvas.style.display = "none";
 
   bpCheckGameState();
@@ -272,7 +273,6 @@ function bpCheckGameState() {
   }
 
   const revealedCount = bpQsa(".bp-egg-card.revealed").length;
-
   if (revealedCount === 6) {
     bpFinished = true;
     fetch("/finish_play", {
@@ -319,24 +319,29 @@ function bpRenderBoard(board) {
 async function bpStartPlay() {
   if (bpPlayStarted) return;
 
-  const res = await fetch("/start_play", { method: "POST" });
-  const data = await res.json();
+  try {
+    const res = await fetch("/start_play", { method: "POST" });
+    const data = await res.json();
 
-  if (!data.ok) {
-    bpShowToast("VOCÊ NÃO TEM JOGADAS DISPONÍVEIS.");
-    return;
+    if (!data.ok) {
+      bpShowToast("VOCÊ NÃO TEM JOGADAS DISPONÍVEIS.");
+      return;
+    }
+
+    bpPlayStarted = true;
+    bpFinished = false;
+
+    const remainingEl = bpQs("#bp-remaining");
+    if (remainingEl) remainingEl.textContent = data.remaining;
+
+    bpRenderBoard(data.board);
+
+    const startBtn = bpQs("#bp-start-btn");
+    if (startBtn) startBtn.style.display = "none";
+  } catch (error) {
+    bpShowToast("ERRO AO INICIAR O JOGO.");
+    console.error(error);
   }
-
-  bpPlayStarted = true;
-  bpFinished = false;
-
-  const remainingEl = bpQs("#bp-remaining");
-  if (remainingEl) remainingEl.textContent = data.remaining;
-
-  bpRenderBoard(data.board);
-
-  const startBtn = bpQs("#bp-start-btn");
-  if (startBtn) startBtn.style.display = "none";
 }
 
 window.addEventListener("resize", bpResizeConfettiCanvas);
@@ -347,6 +352,11 @@ window.addEventListener("DOMContentLoaded", () => {
   const startBtn = bpQs("#bp-start-btn");
   const closeBtn = bpQs("#bp-close-modal-btn");
 
-  if (startBtn) startBtn.addEventListener("click", bpStartPlay);
-  if (closeBtn) closeBtn.addEventListener("click", bpCloseResult);
+  if (startBtn) {
+    startBtn.addEventListener("click", bpStartPlay);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", bpCloseResult);
+  }
 });
