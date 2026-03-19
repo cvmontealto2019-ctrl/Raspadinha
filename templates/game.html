@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Caça aos Ovos Mágica</title>
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
 <style>
 body{
   margin:0;
@@ -19,7 +21,7 @@ h1{
 }
 
 #lives{
-  font-size:20px;
+  font-size:22px;
   margin:10px;
 }
 
@@ -39,7 +41,8 @@ h1{
   justify-content:center;
   font-weight:bold;
   cursor:pointer;
-  transition:0.3s;
+  transition:0.2s;
+  font-size:18px;
 }
 
 .egg:hover{
@@ -55,13 +58,14 @@ h1{
 }
 
 button{
-  padding:12px 20px;
+  padding:14px 22px;
   border:none;
   border-radius:20px;
   background:#ff7a00;
   color:#fff;
   font-weight:bold;
   cursor:pointer;
+  font-size:16px;
 }
 </style>
 
@@ -70,11 +74,11 @@ button{
 
 <h1>🐰 Caça aos Ovos Mágica</h1>
 
-<p id="msg">Uma surpresa especial está escondida para você… ✨</p>
+<p>Uma surpresa especial está escondida para você ✨</p>
 
 <div id="lives">❤️❤️❤️</div>
 
-<button id="start">COMEÇAR</button>
+<button id="start-btn">COMEÇAR AGORA</button>
 
 <div id="board" class="board"></div>
 
