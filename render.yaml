@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: biruta-raspadinha
+    env: python
+    buildCommand: ""
+    startCommand: python server.py
