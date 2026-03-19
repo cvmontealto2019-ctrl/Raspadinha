@@ -1,92 +1,89 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Páscoa Premiada • Biruta Park</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caça aos Ovos Mágica</title>
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+<style>
+body{
+  margin:0;
+  font-family:'Nunito',sans-serif;
+  background:linear-gradient(#fff8ef,#fff0f5);
+  text-align:center;
+}
+
+h1{
+  font-family:'Baloo 2';
+  color:#ff7a00;
+}
+
+#lives{
+  font-size:20px;
+  margin:10px;
+}
+
+.board{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  padding:20px;
+}
+
+.egg{
+  background:radial-gradient(circle,#fff,#ffd9a0);
+  border-radius:50%;
+  height:90px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.egg:hover{
+  transform:scale(1.05);
+}
+
+.revealed{
+  background:#fff;
+}
+
+.hidden{
+  display:none;
+}
+
+button{
+  padding:12px 20px;
+  border:none;
+  border-radius:20px;
+  background:#ff7a00;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+</style>
+
 </head>
-<body class="bp-game-body">
+<body>
 
-  <canvas id="bp-confetti"></canvas>
+<h1>🐰 Caça aos Ovos Mágica</h1>
 
-  <main class="bp-game-shell">
-    <header class="bp-topbar">
-      <div class="bp-brand">
-        <img
-          src="{{ url_for('static', filename='img/logo.png') }}"
-          alt="Logo Biruta Park"
-          class="bp-logo"
-          onerror="this.style.display='none'"
-        >
-        <div>
-          <span class="bp-eyebrow">BIRUTA PARK</span>
-          <h1 class="bp-title">Páscoa Premiada</h1>
-          <p class="bp-subtitle">Olá, <strong>{{ name }}</strong></p>
-        </div>
-      </div>
+<p id="msg">Uma surpresa especial está escondida para você… ✨</p>
 
-      <div class="bp-pill">
-        <span>Jogadas restantes</span>
-        <strong id="bp-remaining">{{ rem }}</strong>
-      </div>
-    </header>
+<div id="lives">❤️❤️❤️</div>
 
-    <section class="bp-hero">
-      <div class="bp-hero-copy">
-        <span class="bp-badge">OVOS RASPÁVEIS</span>
-        <h2>Raspe os ovos e encontre 3 prêmios iguais</h2>
-        <p>
-          Alguns ovos podem mostrar <strong>TENTE NOVAMENTE</strong>.
-          Revele 3 prêmios iguais para ganhar.
-        </p>
-      </div>
+<button id="start">COMEÇAR</button>
 
-      <button id="bp-start-btn" class="bp-btn bp-btn-primary" type="button">
-        COMEÇAR AGORA
-      </button>
-    </section>
+<div id="board" class="board"></div>
 
-    <section id="bp-board" class="bp-board" aria-live="polite">
-      <!-- ovos entram aqui -->
-    </section>
-  </main>
+<div id="result" class="hidden">
+  <h2 id="resultText"></h2>
+  <a id="whatsapp" target="_blank">Ir para WhatsApp</a>
+</div>
 
-  <div id="bp-result-modal" class="bp-modal is-hidden" aria-hidden="true">
-    <div class="bp-modal-card">
-      <div id="bp-result-icon" class="bp-result-icon">🎉</div>
-      <h3 id="bp-result-title">Parabéns!</h3>
-      <div id="bp-result-message" class="bp-result-message"></div>
-      <p class="bp-result-note">
-        Válido apenas para os pacotes Gourmet, Cheff, Biruta ou Birutinha.
-      </p>
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
 
-      <div class="bp-result-actions">
-        <a
-          id="bp-wa-btn"
-          href="#"
-          target="_blank"
-          rel="noopener"
-          class="bp-btn bp-btn-success"
-        >
-          CHAMAR NO WHATSAPP
-        </a>
-
-        <button
-          id="bp-close-modal-btn"
-          type="button"
-          class="bp-btn bp-btn-light"
-        >
-          FECHAR
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div id="bp-toast" class="bp-toast"></div>
-
-  <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 </body>
 </html>
