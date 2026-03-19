@@ -6,17 +6,27 @@
   --bp-card:#ffffff;
   --bp-text:#3b3153;
   --bp-muted:#7a7292;
+
   --bp-orange:#ff7a00;
   --bp-orange-2:#ffb200;
   --bp-yellow:#ffd95a;
+
   --bp-green:#16b364;
   --bp-green-2:#0f9b54;
+
+  --bp-pink:#ff67a8;
+  --bp-blue:#28b6f6;
+  --bp-purple:#9b7bff;
+  --bp-gray:#9d8ca1;
+
   --bp-shadow:0 20px 50px rgba(94,72,120,.12);
   --bp-shadow-soft:0 10px 24px rgba(94,72,120,.08);
+
   --bp-radius-xl:30px;
   --bp-radius-lg:24px;
 }
 
+/* BASE */
 .bp-game-body{
   margin:0;
   min-height:100vh;
@@ -41,6 +51,7 @@
   padding:18px 0 28px;
 }
 
+/* TOPBAR */
 .bp-topbar{
   display:flex;
   align-items:center;
@@ -107,6 +118,7 @@
   font-size:22px;
 }
 
+/* HERO */
 .bp-hero{
   background:rgba(255,255,255,.88);
   border:1px solid rgba(255,255,255,.72);
@@ -146,6 +158,7 @@
   color:var(--bp-muted);
 }
 
+/* BUTTONS */
 .bp-btn{
   border:none;
   border-radius:999px;
@@ -182,12 +195,14 @@
   box-shadow:inset 0 0 0 1px rgba(94,72,120,.12);
 }
 
+/* BOARD */
 .bp-board{
   display:grid;
   grid-template-columns:repeat(3, minmax(0,1fr));
   gap:18px;
 }
 
+/* EGG CARD */
 .bp-egg-card{
   background:rgba(255,255,255,.92);
   border-radius:28px;
@@ -241,24 +256,30 @@
 }
 
 .bp-egg-prize.lose{
-  color:#9d8ca1 !important;
+  color:var(--bp-gray) !important;
 }
 
+/* prize background by theme */
 .bp-egg-card.theme-gold .bp-egg-prize{
   background:linear-gradient(180deg,#fffef8,#fff6d3);
 }
+
 .bp-egg-card.theme-rose .bp-egg-prize{
   background:linear-gradient(180deg,#fff7fb,#ffe1ef);
 }
+
 .bp-egg-card.theme-sky .bp-egg-prize{
   background:linear-gradient(180deg,#f4fdff,#def6ff);
 }
+
 .bp-egg-card.theme-lavender .bp-egg-prize{
   background:linear-gradient(180deg,#fbf9ff,#ece5ff);
 }
+
 .bp-egg-card.theme-mint .bp-egg-prize{
   background:linear-gradient(180deg,#f7fffb,#dffbef);
 }
+
 .bp-egg-card.theme-sunset .bp-egg-prize{
   background:linear-gradient(180deg,#fff8f3,#ffe1cf);
 }
@@ -276,6 +297,7 @@
   display:none;
 }
 
+/* MODAL */
 .bp-modal{
   position:fixed;
   inset:0;
@@ -334,6 +356,7 @@
   margin-top:20px;
 }
 
+/* TOAST */
 .bp-toast{
   position:fixed;
   left:50%;
@@ -355,6 +378,7 @@
   opacity:1;
 }
 
+/* RESPONSIVE */
 @media (max-width:980px){
   .bp-hero{
     display:block;
