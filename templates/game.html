@@ -3,79 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Páscoa Premiada - Biruta Park</title>
+  <title>Páscoa Premiada • Biruta Park</title>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
 </head>
-<body class="game-body">
+<body class="bp-game-body">
 
-  <canvas id="confetti-canvas"></canvas>
+  <canvas id="bp-confetti"></canvas>
 
-  <main class="game-shell">
-    <header class="game-topbar">
-      <div class="game-brand">
+  <main class="bp-game-shell">
+    <header class="bp-topbar">
+      <div class="bp-brand">
         <img
           src="{{ url_for('static', filename='img/logo.png') }}"
           alt="Logo Biruta Park"
-          class="game-logo"
+          class="bp-logo"
           onerror="this.style.display='none'"
         >
         <div>
-          <span class="game-eyebrow">BIRUTA PARK</span>
-          <h1 class="game-title">Páscoa Premiada</h1>
-          <p class="game-subtitle">Olá, <strong>{{ name }}</strong></p>
+          <span class="bp-eyebrow">BIRUTA PARK</span>
+          <h1 class="bp-title">Páscoa Premiada</h1>
+          <p class="bp-subtitle">Olá, <strong>{{ name }}</strong></p>
         </div>
       </div>
 
-      <div class="game-plays-pill">
+      <div class="bp-pill">
         <span>Jogadas restantes</span>
-        <strong id="remaining-count">{{ rem }}</strong>
+        <strong id="bp-remaining">{{ rem }}</strong>
       </div>
     </header>
 
-    <section class="game-hero">
-      <div>
-        <span class="game-badge">OVOS RASPÁVEIS</span>
-        <h2 class="game-hero-title">Raspe os ovos e encontre 3 prêmios iguais</h2>
-        <p class="game-hero-text">
+    <section class="bp-hero">
+      <div class="bp-hero-copy">
+        <span class="bp-badge">OVOS RASPÁVEIS</span>
+        <h2>Raspe os ovos e encontre 3 prêmios iguais</h2>
+        <p>
           Alguns ovos podem mostrar <strong>TENTE NOVAMENTE</strong>.
           Revele 3 prêmios iguais para ganhar.
         </p>
       </div>
 
-      <button id="start-btn" class="game-btn game-btn-primary" type="button">
-        COMEÇAR
+      <button id="bp-start-btn" class="bp-btn bp-btn-primary" type="button">
+        COMEÇAR AGORA
       </button>
     </section>
 
-    <section id="eggs-board" class="game-eggs-board">
-      <!-- ovos entram aqui pelo JS -->
+    <section id="bp-board" class="bp-board" aria-live="polite">
+      <!-- ovos entram aqui -->
     </section>
   </main>
 
-  <div id="result-modal" class="game-modal hidden">
-    <div class="game-modal-card">
-      <div id="result-icon" class="game-modal-icon">🎉</div>
-      <h3 id="result-title">Parabéns!</h3>
-      <div id="result-message" class="game-modal-message"></div>
-      <p class="game-modal-note">
+  <div id="bp-result-modal" class="bp-modal is-hidden" aria-hidden="true">
+    <div class="bp-modal-card">
+      <div id="bp-result-icon" class="bp-result-icon">🎉</div>
+      <h3 id="bp-result-title">Parabéns!</h3>
+      <div id="bp-result-message" class="bp-result-message"></div>
+      <p class="bp-result-note">
         Válido apenas para os pacotes Gourmet, Cheff, Biruta ou Birutinha.
       </p>
 
-      <div class="game-modal-actions">
+      <div class="bp-result-actions">
         <a
-          id="whatsapp-btn"
+          id="bp-wa-btn"
           href="#"
           target="_blank"
           rel="noopener"
-          class="game-btn game-btn-success"
+          class="bp-btn bp-btn-success"
         >
           CHAMAR NO WHATSAPP
         </a>
 
         <button
-          id="close-result-btn"
-          class="game-btn game-btn-light"
+          id="bp-close-modal-btn"
           type="button"
+          class="bp-btn bp-btn-light"
         >
           FECHAR
         </button>
@@ -83,7 +85,7 @@
     </div>
   </div>
 
-  <div id="toast" class="game-toast"></div>
+  <div id="bp-toast" class="bp-toast"></div>
 
   <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 </body>
