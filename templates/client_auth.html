@@ -1,1 +1,158 @@
-<!doctype html><html lang="pt-br"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/><link rel="stylesheet" href="/static/css/styles.css"/><title>Páscoa Encantada • Biruta Park</title></head><body class="theme-easter"><main class="page-shell auth-page"><section class="auth-card-new"><div class="auth-visual"><div class="brand-stack"><img src="/static/img/logo.png" alt="Logo" onerror="this.style.display='none'"><div class="eyebrow">BIRUTA PARK</div><h1>PÁSCOA PREMIADA</h1><p>Entre na campanha e descubra seu prêmio de forma rápida e encantadora.</p></div><div class="mini-egg-row"><span class="mini-egg gold"></span><span class="mini-egg rose"></span><span class="mini-egg sky"></span></div></div><div class="auth-forms"><div class="tag">ACESSO RÁPIDO</div><h2>Cadastre-se e participe</h2><p class="subtle">Visual limpo, simples e pronto para o cliente usar no celular.</p><div class="auth-grid"><form method="POST" action="/register" class="glass-form"><h3>PRIMEIRO ACESSO</h3><label><span>NOME COMPLETO</span><input class="field upper-input" name="name" placeholder="EX: MARIA SILVA" required></label><label><span>WHATSAPP</span><input class="field" id="cad_whatsapp" name="whatsapp" inputmode="numeric" placeholder="(16) 99999-9999" required></label><p class="small-note">A senha inicial será os 4 últimos dígitos do seu WhatsApp.</p><button class="btn btn-gradient" type="submit">CADASTRAR</button></form><form method="POST" action="/login" class="glass-form"><h3>JÁ TENHO CADASTRO</h3><label><span>WHATSAPP</span><input class="field" id="login_whatsapp" name="whatsapp" inputmode="numeric" placeholder="(16) 99999-9999" required></label><label><span>SENHA</span><input class="field upper-input" name="password" placeholder="SUA SENHA" required></label><div class="spacer"></div><button class="btn btn-gold" type="submit">ENTRAR</button></form></div></div></section></main><script>function maskPhone(v){v=(v||"").replace(/\D+/g,""); if(v.length>11) v=v.slice(0,11); if(v.length<=2) return v; if(v.length<=7) return `(${v.slice(0,2)}) ${v.slice(2)}`; if(v.length===10) return `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`; return `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;}["cad_whatsapp","login_whatsapp"].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener("input", ()=> el.value=maskPhone(el.value));}); document.querySelectorAll(".upper-input").forEach(el=> el.addEventListener("input", ()=> el.value=el.value.toUpperCase()));</script></body></html>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Páscoa Premiada - Biruta Park</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #fff7e6, #ffe0b2);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .logo {
+      width: 140px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      color: #ff7a00;
+      margin-bottom: 5px;
+    }
+
+    p {
+      color: #555;
+    }
+
+    .box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 30px;
+      justify-content: center;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 350px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .card h3 {
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #ff9800;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(45deg, #ff7a00, #ffb300);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+    }
+
+    .info {
+      font-size: 13px;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .box {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo">
+
+    <h1>Páscoa Premiada</h1>
+    <p>Cadastre-se e descubra seu prêmio 🎁</p>
+
+    <div class="box">
+
+      <!-- CADASTRO -->
+      <div class="card">
+        <h3>Primeiro Acesso</h3>
+
+        <form method="POST" action="/register">
+
+          <input type="text" name="name" placeholder="Nome completo" required>
+
+          <input type="text" name="whatsapp" placeholder="WhatsApp (somente números)" required>
+
+          <div class="info">
+            Sua senha será os 4 últimos dígitos do WhatsApp
+          </div>
+
+          <button type="submit">Cadastrar e jogar</button>
+
+        </form>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="card">
+        <h3>Já tenho cadastro</h3>
+
+        <form method="POST" action="/login">
+
+          <input type="text" name="whatsapp" placeholder="WhatsApp" required>
+
+          <input type="password" name="password" placeholder="Senha" required>
+
+          <button type="submit">Entrar</button>
+
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
