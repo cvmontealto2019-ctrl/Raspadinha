@@ -1,4 +1,4 @@
-const PRIZE_COLORS = {
+const BP_PRIZE_COLORS = {
   "10 CONVIDADOS ADICIONAIS": "#ff7a18",
   "15 CRIANÇAS DE 6 A 10 ANOS": "#ff5e94",
   "30 CRIANÇAS DE 0 A 8 ANOS": "#18a0fb",
@@ -6,37 +6,37 @@ const PRIZE_COLORS = {
   "TENTE NOVAMENTE": "#9a7d8f"
 };
 
-let finished = false;
-let confettiRunning = false;
-let playStarted = false;
+let bpFinished = false;
+let bpConfettiRunning = false;
+let bpPlayStarted = false;
 
-const qs = (s) => document.querySelector(s);
-const qsa = (s) => Array.from(document.querySelectorAll(s));
+const bpQs = (s) => document.querySelector(s);
+const bpQsa = (s) => Array.from(document.querySelectorAll(s));
 
-function showToast(message) {
-  const toast = qs("#toast");
+function bpShowToast(message) {
+  const toast = bpQs("#bp-toast");
   if (!toast) return;
   toast.textContent = message;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 2200);
 }
 
-function resizeConfettiCanvas() {
-  const canvas = qs("#confetti-canvas");
+function bpResizeConfettiCanvas() {
+  const canvas = bpQs("#bp-confetti");
   if (!canvas) return;
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
 
-function showConfetti() {
-  const canvas = qs("#confetti-canvas");
+function bpShowConfetti() {
+  const canvas = bpQs("#bp-confetti");
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
-  resizeConfettiCanvas();
+  bpResizeConfettiCanvas();
 
   const colors = ["#ff8a3d", "#ffd95b", "#ff6ea5", "#87e2ff", "#9d86ff", "#6de0a5", "#ffffff"];
-  const pieces = Array.from({ length: 340 }, () => ({
+  const pieces = Array.from({ length: 320 }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * -canvas.height,
     r: 3 + Math.random() * 7,
@@ -47,11 +47,11 @@ function showConfetti() {
     color: colors[Math.floor(Math.random() * colors.length)]
   }));
 
-  confettiRunning = true;
+  bpConfettiRunning = true;
   let frame = 0;
 
   (function tick() {
-    if (!confettiRunning) return;
+    if (!bpConfettiRunning) return;
 
     frame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -77,42 +77,49 @@ function showConfetti() {
     if (frame < 320) {
       requestAnimationFrame(tick);
     } else {
-      confettiRunning = false;
+      bpConfettiRunning = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   })();
 }
 
-function showResult(isWin, prize, whatsappText, whatsappNumber, remaining) {
-  const remainingPlays = qs("#remaining-count");
-  if (remainingPlays) remainingPlays.textContent = remaining;
+function bpOpenResult(isWin, prize, whatsappText, whatsappNumber, remaining) {
+  const remainingEl = bpQs("#bp-remaining");
+  const modal = bpQs("#bp-result-modal");
+  const icon = bpQs("#bp-result-icon");
+  const title = bpQs("#bp-result-title");
+  const message = bpQs("#bp-result-message");
+  const waBtn = bpQs("#bp-wa-btn");
 
-  const overlay = qs("#result-modal");
-  const emoji = qs("#result-icon");
-  const title = qs("#result-title");
-  const text = qs("#result-message");
-  const waBtn = qs("#whatsapp-btn");
-
-  if (!overlay || !emoji || !title || !text || !waBtn) return;
+  if (remainingEl) remainingEl.textContent = remaining;
+  if (!modal || !icon || !title || !message || !waBtn) return;
 
   if (isWin) {
-    showConfetti();
-    emoji.textContent = "🎉";
+    bpShowConfetti();
+    icon.textContent = "🎉";
     title.textContent = "Parabéns!";
-    text.innerHTML = `VOCÊ GANHOU <strong style="color:${PRIZE_COLORS[prize] || "#ff7a18"}">${prize}</strong>.`;
+    message.innerHTML = `VOCÊ GANHOU <strong style="color:${BP_PRIZE_COLORS[prize] || "#ff7a18"}">${prize}</strong>.`;
     waBtn.style.display = "inline-flex";
     waBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
   } else {
-    emoji.textContent = "🐣";
+    icon.textContent = "🐣";
     title.textContent = "Que pena!";
-    text.innerHTML = `DESSA VEZ APARECEU <strong style="color:${PRIZE_COLORS["TENTE NOVAMENTE"]}">TENTE NOVAMENTE</strong>.`;
+    message.innerHTML = `DESSA VEZ APARECEU <strong style="color:${BP_PRIZE_COLORS["TENTE NOVAMENTE"]}">TENTE NOVAMENTE</strong>.`;
     waBtn.style.display = "none";
   }
 
-  overlay.classList.remove("hidden");
+  modal.classList.remove("is-hidden");
+  modal.setAttribute("aria-hidden", "false");
 }
 
-function buildEggCover(canvas, theme) {
+function bpCloseResult() {
+  const modal = bpQs("#bp-result-modal");
+  if (!modal) return;
+  modal.classList.add("is-hidden");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function bpBuildEggCover(canvas, theme) {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   const rect = canvas.getBoundingClientRect();
   const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -174,7 +181,7 @@ function buildEggCover(canvas, theme) {
   ctx.fill();
 }
 
-function transparentPercent(canvas) {
+function bpTransparentPercent(canvas) {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   let transparent = 0;
@@ -186,61 +193,22 @@ function transparentPercent(canvas) {
   return transparent / (data.length / 4);
 }
 
-function checkGameState() {
-  if (finished) return;
-
-  const counts = {};
-  qsa(".game-egg-card.revealed").forEach((card) => {
-    const value = card.dataset.value;
-    counts[value] = (counts[value] || 0) + 1;
-  });
-
-  const winningPrize = Object.keys(counts).find(
-    (key) => key !== "TENTE NOVAMENTE" && counts[key] >= 3
-  );
-
-  if (winningPrize) {
-    finished = true;
-    fetch("/finish_play", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ outcome: "WIN", prize: winningPrize })
-    })
-      .then((r) => r.json())
-      .then((data) => showResult(true, winningPrize, data.whatsapp_text, data.whatsapp_number, data.remaining));
-    return;
-  }
-
-  const revealedCount = qsa(".game-egg-card.revealed").length;
-
-  if (revealedCount === 6) {
-    finished = true;
-    fetch("/finish_play", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ outcome: "LOSE", prize: "TENTE NOVAMENTE" })
-    })
-      .then((r) => r.json())
-      .then((data) => showResult(false, "TENTE NOVAMENTE", data.whatsapp_text, data.whatsapp_number, data.remaining));
-  }
-}
-
-function revealEgg(card) {
+function bpRevealEgg(card) {
   if (card.classList.contains("revealed")) return;
   card.classList.add("revealed");
 
   const canvas = card.querySelector("canvas");
   if (canvas) canvas.style.display = "none";
 
-  checkGameState();
+  bpCheckGameState();
 }
 
-function attachEggScratch(canvas) {
-  const card = canvas.closest(".game-egg-card");
+function bpAttachScratch(canvas) {
+  const card = canvas.closest(".bp-egg-card");
   if (!card) return;
 
   const theme = card.dataset.theme;
-  buildEggCover(canvas, theme);
+  bpBuildEggCover(canvas, theme);
 
   let down = false;
 
@@ -257,19 +225,19 @@ function attachEggScratch(canvas) {
     ctx.fill();
     ctx.globalCompositeOperation = "source-over";
 
-    if (transparentPercent(canvas) >= 0.40) {
-      revealEgg(card);
+    if (bpTransparentPercent(canvas) >= 0.40) {
+      bpRevealEgg(card);
     }
   };
 
   canvas.addEventListener("pointerdown", (e) => {
-    if (finished) return;
+    if (bpFinished) return;
     down = true;
     scratch(e.clientX, e.clientY);
   });
 
   canvas.addEventListener("pointermove", (e) => {
-    if (!down || finished) return;
+    if (!down || bpFinished) return;
     scratch(e.clientX, e.clientY);
   });
 
@@ -278,73 +246,107 @@ function attachEggScratch(canvas) {
   });
 }
 
-function renderBoard(board) {
-  const eggsBoard = qs("#eggs-board");
-  if (!eggsBoard) return;
+function bpCheckGameState() {
+  if (bpFinished) return;
 
-  eggsBoard.innerHTML = "";
+  const counts = {};
+  bpQsa(".bp-egg-card.revealed").forEach((card) => {
+    const value = card.dataset.value;
+    counts[value] = (counts[value] || 0) + 1;
+  });
+
+  const winningPrize = Object.keys(counts).find(
+    (key) => key !== "TENTE NOVAMENTE" && counts[key] >= 3
+  );
+
+  if (winningPrize) {
+    bpFinished = true;
+    fetch("/finish_play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ outcome: "WIN", prize: winningPrize })
+    })
+      .then((r) => r.json())
+      .then((data) => bpOpenResult(true, winningPrize, data.whatsapp_text, data.whatsapp_number, data.remaining));
+    return;
+  }
+
+  const revealedCount = bpQsa(".bp-egg-card.revealed").length;
+
+  if (revealedCount === 6) {
+    bpFinished = true;
+    fetch("/finish_play", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ outcome: "LOSE", prize: "TENTE NOVAMENTE" })
+    })
+      .then((r) => r.json())
+      .then((data) => bpOpenResult(false, "TENTE NOVAMENTE", data.whatsapp_text, data.whatsapp_number, data.remaining));
+  }
+}
+
+function bpRenderBoard(board) {
+  const boardEl = bpQs("#bp-board");
+  if (!boardEl) return;
+
+  boardEl.innerHTML = "";
 
   board.forEach((item) => {
     const prizeClass = item.value.length > 20 ? "small-text" : "";
     const loseClass = item.value === "TENTE NOVAMENTE" ? "lose" : "";
 
     const card = document.createElement("article");
-    card.className = `game-egg-card theme-${item.theme}`;
+    card.className = `bp-egg-card theme-${item.theme}`;
     card.dataset.value = item.value;
     card.dataset.theme = item.theme;
 
     card.innerHTML = `
-      <div class="game-egg-label">${item.name}</div>
-      <div class="game-egg-wrap">
-        <div class="game-egg-prize ${prizeClass} ${loseClass}" style="color:${PRIZE_COLORS[item.value] || "#5f5675"}">
+      <div class="bp-egg-label">${item.name}</div>
+      <div class="bp-egg-wrap">
+        <div class="bp-egg-prize ${prizeClass} ${loseClass}" style="color:${BP_PRIZE_COLORS[item.value] || "#5f5675"}">
           ${item.value}
         </div>
-        <canvas class="game-egg-canvas"></canvas>
+        <canvas class="bp-egg-canvas"></canvas>
       </div>
     `;
 
-    eggsBoard.appendChild(card);
+    boardEl.appendChild(card);
   });
 
-  qsa(".game-egg-canvas").forEach(attachEggScratch);
+  bpQsa(".bp-egg-canvas").forEach(bpAttachScratch);
 }
 
-async function startPlay() {
-  if (playStarted) return;
+async function bpStartPlay() {
+  if (bpPlayStarted) return;
 
   const res = await fetch("/start_play", { method: "POST" });
   const data = await res.json();
 
   if (!data.ok) {
-    showToast("VOCÊ NÃO TEM JOGADAS DISPONÍVEIS.");
+    bpShowToast("VOCÊ NÃO TEM JOGADAS DISPONÍVEIS.");
     return;
   }
 
-  playStarted = true;
-  finished = false;
+  bpPlayStarted = true;
+  bpFinished = false;
 
-  const remainingPlays = qs("#remaining-count");
-  if (remainingPlays) remainingPlays.textContent = data.remaining;
+  const remainingEl = bpQs("#bp-remaining");
+  if (remainingEl) remainingEl.textContent = data.remaining;
 
-  renderBoard(data.board);
+  bpRenderBoard(data.board);
 
-  const startBtn = qs("#start-btn");
+  const startBtn = bpQs("#bp-start-btn");
   if (startBtn) startBtn.style.display = "none";
 }
 
-window.addEventListener("resize", resizeConfettiCanvas);
+window.addEventListener("resize", bpResizeConfettiCanvas);
 
 window.addEventListener("DOMContentLoaded", () => {
-  resizeConfettiCanvas();
+  bpResizeConfettiCanvas();
 
-  const startBtn = qs("#start-btn");
-  const closeBtn = qs("#close-result-btn");
+  const startBtn = bpQs("#bp-start-btn");
+  const closeBtn = bpQs("#bp-close-modal-btn");
 
-  if (startBtn) startBtn.addEventListener("click", startPlay);
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      const modal = qs("#result-modal");
-      if (modal) modal.classList.add("hidden");
-    });
-  }
+  if (startBtn) startBtn.addEventListener("click", bpStartPlay);
+  if (closeBtn) closeBtn.addEventListener("click", bpCloseResult);
 });
