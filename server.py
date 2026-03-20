@@ -272,11 +272,18 @@ def game():
             back=url_for("home")
         )
 
+    expires_at_ts = ""
+    if client["expires_at"]:
+        expires_at_ts = int(
+            datetime.strptime(client["expires_at"], "%Y-%m-%d %H:%M:%S").timestamp()
+        )
+
     return render_template(
         "game.html",
         name=client["name"],
         current_prize=client["current_prize"] or "",
-        expires_at=client["expires_at"] or ""
+        expires_at=client["expires_at"] or "",
+        expires_at_ts=expires_at_ts
     )
 
 
