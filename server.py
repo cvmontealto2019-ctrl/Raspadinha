@@ -99,15 +99,53 @@ def init_db():
     conn.close()
 
 def round_profile(rounds_played: int):
-    # Primeira rodada sempre perde com ovos chocos
     if rounds_played == 0:
         return "first_forced_lose"
     return "normal"
 
 def build_board(rounds_played: int):
     profile = round_profile(rounds_played)
+
     positions = MAGIC_POSITIONS[:]
     random.shuffle(positions)
+
+    winning_prize = random.choice(PRIZES)
+    decoy_prizes = [p for p in PRIZES if p != winning_prize]
+    random.shuffle(decoy_prizes)
+
+    if profile == "first_forced_lose":
+        # Primeira rodada: 3 ovos chocos + 3 prêmios + 2 tente novamente
+        # Continua existindo chance visual de prêmio, mas com muito risco.
+        values = [
+            ROTTEN, ROTTEN, ROTTEN,
+            winning_prize, winning_prize, winning_prize,
+            TRY_AGAIN, TRY_AGAIN,
+        ]
+    else:
+        # Todas as outras rodadas: sempre 3 chocos + 3 prêmios + 2 distrações
+        # Mantém o risco constante em todas as telas.
+        values = [
+            ROTTEN, ROTTEN, ROTTEN,
+            winning_prize, winning_prize, winning_prize,
+            decoy_prizes[0], TRY_AGAIN,
+        ]
+
+    random.shuffle(values)
+
+    board = []
+    for idx, value in enumerate(values):
+        pos = positions[idx]
+        board.append({
+            "id": idx + 1,
+            "value": value,
+            "theme": THEMES[idx % len(THEMES)],
+            "x": pos["x"],
+            "y": pos["y"],
+            "size": pos["size"],
+            "profile": profile,
+        })
+
+    return board
 
     if profile == "first_forced_lose":
         values = [ROTTEN, ROTTEN, ROTTEN, TRY_AGAIN, TRY_AGAIN]
@@ -235,7 +273,12 @@ def start_round():
     rounds_played = int(client["rounds_played"])
     board = build_board(rounds_played)
     session["active_round"] = {"board": board}
-    return jsonify(ok=True, board=board, forced_first_loss=(rounds_played == 0))
+
+    return jsonify(
+        ok=True,
+        board=board,
+        forced_first_loss=(rounds_played == 0)
+    )
 
 @app.route("/finish_round", methods=["POST"])
 def finish_round():
