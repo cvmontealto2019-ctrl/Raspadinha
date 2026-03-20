@@ -18,9 +18,18 @@
     </header>
 
     <section class="stats-grid">
-      <article class="stat-card"><span>Clientes cadastrados</span><strong>{{ total_clients }}</strong></article>
-      <article class="stat-card"><span>Rodadas jogadas</span><strong>{{ total_rounds }}</strong></article>
-      <article class="stat-card"><span>Vitórias</span><strong>{{ total_wins }}</strong></article>
+      <article class="stat-card">
+        <span>Clientes cadastrados</span>
+        <strong>{{ total_clients }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Rodadas jogadas</span>
+        <strong>{{ total_rounds }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Vitórias</span>
+        <strong>{{ total_wins }}</strong>
+      </article>
     </section>
 
     <section class="table-card">
@@ -34,6 +43,8 @@
               <th>Cortesia atual</th>
               <th>Rodadas</th>
               <th>Vitórias</th>
+              <th>Expira em</th>
+              <th>Situação</th>
               <th>Status</th>
               <th>Ações</th>
             </tr>
@@ -46,17 +57,30 @@
               <td>{{ client['current_prize'] if client['current_prize'] else 'Nenhuma' }}</td>
               <td>{{ client['rounds_played'] }}</td>
               <td>{{ client['rounds_won'] }}</td>
-              <td>{{ 'Ativo' if client['is_active'] == 1 else 'Inativo' }}</td>
+              <td>{{ client['expires_at'] if client['expires_at'] else '-' }}</td>
+              <td>
+                {% if client['expires_at'] and is_expired(client['expires_at']) %}
+                  Expirado
+                {% else %}
+                  Dentro do prazo
+                {% endif %}
+              </td>
+              <td>
+                {{ 'Ativo' if client['is_active'] == 1 else 'Inativo' }}
+              </td>
               <td class="actions">
                 <a class="mini-link" href="{{ url_for('admin_edit_client', client_id=client['id']) }}">Editar</a>
+
+                <form method="POST" action="{{ url_for('admin_reset_expiration', client_id=client['id']) }}" class="inline-form">
+                  <button class="mini-btn" type="submit">Renovar 24h</button>
+                </form>
+
                 <form method="POST" action="{{ url_for('admin_clear_prize', client_id=client['id']) }}" class="inline-form">
                   <button class="mini-btn" type="submit">Limpar cortesia</button>
                 </form>
+
                 <form method="POST" action="{{ url_for('admin_delete_client', client_id=client['id']) }}" class="inline-form" onsubmit="return confirm('Excluir este cliente?');">
                   <button class="mini-btn danger" type="submit">Excluir</button>
-                  <form method="POST" action="{{ url_for('admin_reset_expiration', client_id=client['id']) }}" class="inline-form">
-  <button class="mini-btn" type="submit">Renovar 24h</button>
-                  </form>
                 </form>
               </td>
             </tr>
