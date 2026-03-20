@@ -252,11 +252,12 @@ def game():
             back=url_for("home")
         )
 
-    return render_template(
-        "game.html",
-        name=client["name"],
-        current_prize=client["current_prize"] or ""
-    )
+   return render_template(
+    "game.html",
+    name=client["name"],
+    current_prize=client["current_prize"] or "",
+    expires_at=client["expires_at"] or ""
+   )
 
 
 @app.route("/start_round", methods=["POST"])
