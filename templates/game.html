@@ -6,6 +6,29 @@
   <title>Caça aos Ovos Mágica • Biruta Park</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+
+  <style>
+    .bp-timer-box.urgent strong {
+      color: #d94b4b !important;
+      animation: pulseTimer 1s infinite;
+    }
+
+    .bp-timer-box.warning strong {
+      color: #e28b15 !important;
+    }
+
+    .bp-btn-disabled {
+      opacity: .55;
+      pointer-events: none;
+      filter: grayscale(.15);
+    }
+
+    @keyframes pulseTimer {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+  </style>
 </head>
 <body class="bp-game-body">
   <canvas id="bp-confetti"></canvas>
@@ -51,26 +74,26 @@
       </div>
     </section>
 
-<section class="bp-status-row">
-  <div class="bp-life-box">
-    <span>Vidas</span>
-    <strong id="bp-lives">❤️❤️❤️</strong>
-  </div>
+    <section class="bp-status-row">
+      <div class="bp-life-box">
+        <span>Vidas</span>
+        <strong id="bp-lives">❤️❤️❤️</strong>
+      </div>
 
-  <div class="bp-tip-box">
-    <span>Tempo restante</span>
-    <strong id="bp-timer" data-expires="{{ expires_at if expires_at else '' }}">
-      --
-    </strong>
-  </div>
+      <div class="bp-tip-box bp-timer-box" id="bp-timer-box">
+        <span>Tempo restante</span>
+        <strong id="bp-timer" data-expires="{{ expires_at if expires_at else '' }}">
+          Carregando...
+        </strong>
+      </div>
 
-  <div class="bp-tip-box">
-    <span>Importante</span>
-    <strong>
-      Ao ganhar uma nova cortesia, a anterior será substituída.
-    </strong>
-  </div>
-</section>
+      <div class="bp-tip-box">
+        <span>Importante</span>
+        <strong>
+          Ao ganhar uma nova cortesia, a anterior será substituída.
+        </strong>
+      </div>
+    </section>
 
     <section class="bp-scene-card ultra">
       <div class="bp-scene ultra">
@@ -135,5 +158,88 @@
   <div id="bp-toast" class="bp-toast"></div>
 
   <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+
+  <script>
+    function bpShowTimerToast(message) {
+      const toast = document.getElementById("bp-toast");
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function bpDisableStartButton() {
+      const startBtn = document.getElementById("bp-start-btn");
+      if (!startBtn) return;
+      startBtn.disabled = true;
+      startBtn.classList.add("bp-btn-disabled");
+      startBtn.textContent = "TEMPO ENCERRADO";
+    }
+
+    function bpStartCountdown() {
+      const timerEl = document.getElementById("bp-timer");
+      const timerBox = document.getElementById("bp-timer-box");
+      const expiresAt = timerEl ? timerEl.dataset.expires : "";
+
+      if (!timerEl || !expiresAt) {
+        if (timerEl) timerEl.textContent = "--";
+        return;
+      }
+
+      let alreadyExpiredHandled = false;
+
+      function updateTimer() {
+        const end = new Date(expiresAt.replace(" ", "T"));
+        const now = new Date();
+        const diff = end - now;
+
+        if (diff <= 0) {
+          timerEl.textContent = "Tempo encerrado";
+          timerBox.classList.remove("warning");
+          timerBox.classList.add("urgent");
+          bpDisableStartButton();
+
+          if (!alreadyExpiredHandled) {
+            alreadyExpiredHandled = true;
+            bpShowTimerToast("Seu tempo para jogar acabou.");
+            setTimeout(() => {
+              window.location.reload();
+            }, 1800);
+          }
+          return;
+        }
+
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        let text = "";
+        if (days > 0) {
+          text = `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min`;
+        } else {
+          text = `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
+        }
+
+        timerEl.textContent = text;
+
+        timerBox.classList.remove("warning", "urgent");
+
+        if (totalSeconds <= 1800) {
+          timerBox.classList.add("urgent");
+        } else if (totalSeconds <= 7200) {
+          timerBox.classList.add("warning");
+        }
+      }
+
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      bpStartCountdown();
+    });
+  </script>
 </body>
 </html>
