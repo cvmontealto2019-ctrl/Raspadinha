@@ -333,9 +333,9 @@ def finish_round():
     whatsapp_text = ""
     if prize:
         whatsapp_text = (
-            f'OLÁ! ACABEI DE GANHAR A CORTESIA "{prize}" NA CAÇA AOS OVOS MÁGICA DO BIRUTA PARK 🐰✨. '
-            f'SEI QUE ESSA CORTESIA ESPECIAL É PARA O FECHAMENTO DE UM NOVO CONTRATO. '
-            f'GOSTARIA DE RECEBER O ORÇAMENTO COM ESSA CONDIÇÃO.'
+            f'Oii! Acabei de ganhar a cortesia "{prize}" . Na caça aos ovos do Buffet Biruta Park! 🐰✨. '
+            f'Sei que essa cortesia especial é para o fechamento de um novo contrato em até 3 dias úteis. '
+            f'Gostaria de receber um orçamento!'
         )
 
     return jsonify(
