@@ -1,3 +1,6 @@
+const bpQs = (s) => document.querySelector(s);
+const bpQsa = (s) => Array.from(document.querySelectorAll(s));
+
 const BP_PRIZE_COLORS = {
   "10 CONVIDADOS ADICIONAIS": "#ff7a18",
   "15 CRIANÇAS DE 6 A 10 ANOS": "#ff5e94",
@@ -21,9 +24,6 @@ let bpLives = 3;
 let bpFound = {};
 let bpRottenHits = 0;
 
-const bpQs = (s) => document.querySelector(s);
-const bpQsa = (s) => Array.from(document.querySelectorAll(s));
-
 function bpResizeConfettiCanvas() {
   const canvas = bpQs("#bp-confetti");
   if (!canvas) return;
@@ -36,11 +36,17 @@ function bpShowToast(message) {
   if (!toast) return;
   toast.textContent = message;
   toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2600);
+  setTimeout(() => toast.classList.remove("show"), 2400);
 }
 
-function bpRandomRottenMessage() {
-  return BP_ROTTEN_MESSAGES[Math.floor(Math.random() * BP_ROTTEN_MESSAGES.length)];
+function bpUpdateLives() {
+  const el = bpQs("#bp-lives");
+  if (el) el.textContent = "❤️".repeat(bpLives);
+}
+
+function bpUpdateCurrentPrize(text) {
+  const el = bpQs("#bp-current-prize-text");
+  if (el) el.textContent = text && String(text).trim() ? text : "Nenhuma ainda";
 }
 
 function bpStartCountdown() {
@@ -54,15 +60,14 @@ function bpStartCountdown() {
     return;
   }
 
-  let expiredHandled = false;
   const endMs = Number(expiresTs) * 1000;
+  let handled = false;
 
   function updateTimer() {
     const diff = endMs - Date.now();
 
     if (diff <= 0) {
       timerEl.textContent = "Tempo encerrado";
-
       if (timerBox) {
         timerBox.classList.remove("warning");
         timerBox.classList.add("urgent");
@@ -75,11 +80,9 @@ function bpStartCountdown() {
         startBtn.textContent = "TEMPO ENCERRADO";
       }
 
-      if (!expiredHandled) {
-        expiredHandled = true;
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+      if (!handled) {
+        handled = true;
+        setTimeout(() => window.location.reload(), 1500);
       }
       return;
     }
@@ -98,7 +101,6 @@ function bpStartCountdown() {
 
     if (timerBox) {
       timerBox.classList.remove("warning", "urgent");
-
       if (totalSeconds <= 1800) {
         timerBox.classList.add("urgent");
       } else if (totalSeconds <= 7200) {
@@ -114,15 +116,14 @@ function bpStartCountdown() {
 function bpShowConfetti() {
   const canvas = bpQs("#bp-confetti");
   if (!canvas) return;
-
   const ctx = canvas.getContext("2d");
   bpResizeConfettiCanvas();
 
   const colors = ["#ff8a3d", "#ffd95b", "#ff6ea5", "#87e2ff", "#9d86ff", "#6de0a5", "#ffffff"];
-  const pieces = Array.from({ length: 280 }, () => ({
+  const pieces = Array.from({ length: 220 }, () => ({
     x: Math.random() * canvas.width,
     y: Math.random() * -canvas.height,
-    r: 3 + Math.random() * 6,
+    r: 3 + Math.random() * 5,
     vy: 2 + Math.random() * 4,
     vx: -2 + Math.random() * 4,
     rot: Math.random() * Math.PI,
@@ -130,12 +131,9 @@ function bpShowConfetti() {
     color: colors[Math.floor(Math.random() * colors.length)]
   }));
 
-  let running = true;
   let frame = 0;
 
   (function tick() {
-    if (!running) return;
-
     frame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -157,27 +155,12 @@ function bpShowConfetti() {
       ctx.restore();
     });
 
-    if (frame < 300) {
+    if (frame < 240) {
       requestAnimationFrame(tick);
     } else {
-      running = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
   })();
-}
-
-function bpUpdateLives() {
-  const livesEl = bpQs("#bp-lives");
-  if (livesEl) {
-    livesEl.textContent = "❤️".repeat(bpLives);
-  }
-}
-
-function bpUpdateCurrentPrize(text) {
-  const el = bpQs("#bp-current-prize-text");
-  if (el) {
-    el.textContent = text && String(text).trim() ? text : "Nenhuma ainda";
-  }
 }
 
 function bpOpenResult(mode, prize, whatsappText, whatsappNumber, currentPrize) {
@@ -227,8 +210,7 @@ function bpClassifyValue(value) {
 }
 
 function bpApplyMobilePositions(board) {
-  const isMobile = window.innerWidth <= 640;
-  if (!isMobile) return board;
+  if (window.innerWidth > 640) return board;
 
   const mobilePositions = [
     { x: 12, y: 71 },
@@ -260,7 +242,6 @@ function bpRenderBoard(board) {
     card.type = "button";
     card.className = `bp-egg-card theme-${item.theme} size-${item.size}`;
     card.dataset.value = item.value;
-    card.dataset.profile = item.profile || "normal";
     card.style.left = `${item.x}%`;
     card.style.top = `${item.y}%`;
 
@@ -328,18 +309,9 @@ function bpCheckOutcomeAfterReveal() {
     })
       .then((r) => r.json())
       .then((data) => {
-        bpOpenResult(
-          "win",
-          winningPrize,
-          data.whatsapp_text,
-          data.whatsapp_number,
-          data.current_prize || winningPrize
-        );
+        bpOpenResult("win", winningPrize, data.whatsapp_text, data.whatsapp_number, data.current_prize || winningPrize);
       })
-      .catch(() => {
-        bpShowToast("Erro ao finalizar a rodada.");
-      });
-
+      .catch(() => bpShowToast("Erro ao finalizar a rodada."));
     return;
   }
 
@@ -393,14 +365,16 @@ async function bpStartRound(showToastOnError = true) {
           bpShowToast("Não foi possível iniciar a rodada.");
         }
       }
-      return;
+      return false;
     }
 
     bpRenderBoard(data.board || []);
     bpRoundActive = true;
+    return true;
   } catch (error) {
     console.error(error);
     if (showToastOnError) bpShowToast("Erro ao iniciar a rodada.");
+    return false;
   }
 }
 
@@ -418,8 +392,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
   if (startBtn) {
     startBtn.addEventListener("click", async () => {
-      startBtn.style.display = "none";
-      await bpStartRound(true);
+      const ok = await bpStartRound(true);
+      if (ok) {
+        startBtn.style.display = "none";
+      }
     });
   }
 
