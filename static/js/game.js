@@ -43,6 +43,42 @@ function bpRandomRottenMessage() {
   return BP_ROTTEN_MESSAGES[Math.floor(Math.random() * BP_ROTTEN_MESSAGES.length)];
 }
 
+function bpStartCountdown() {
+  const timerEl = bpQs("#bp-timer");
+  if (!timerEl) return;
+
+  const expiresAt = timerEl.dataset.expires;
+  if (!expiresAt) {
+    timerEl.textContent = "--";
+    return;
+  }
+
+  function updateTimer() {
+    const end = new Date(expiresAt.replace(" ", "T"));
+    const now = new Date();
+    const diff = end - now;
+
+    if (diff <= 0) {
+      timerEl.textContent = "Tempo encerrado";
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+      return;
+    }
+
+    const totalSeconds = Math.floor(diff / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    timerEl.textContent =
+      `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
 function bpShowConfetti() {
   const canvas = bpQs("#bp-confetti");
   if (!canvas) return;
@@ -322,6 +358,7 @@ window.addEventListener("resize", () => {
 window.addEventListener("DOMContentLoaded", () => {
   bpResizeConfettiCanvas();
   bpUpdateLives();
+  bpStartCountdown();
 
   const startBtn = bpQs("#bp-start-btn");
   const playAgainBtn = bpQs("#bp-play-again-btn");
@@ -332,6 +369,14 @@ window.addEventListener("DOMContentLoaded", () => {
       await bpStartRound(true);
     });
   }
+
+  if (playAgainBtn) {
+    playAgainBtn.addEventListener("click", async () => {
+      bpCloseResult();
+      await bpStartRound(true);
+    });
+  }
+});
 
   if (playAgainBtn) {
     playAgainBtn.addEventListener("click", async () => {
