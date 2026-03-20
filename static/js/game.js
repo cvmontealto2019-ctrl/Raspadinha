@@ -1,798 +1,342 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800;900&display=swap');
-
-:root{
-  --bp-bg-1:#fff8ef;
-  --bp-bg-2:#fff2f8;
-  --bp-text:#3b3153;
-  --bp-muted:#7a7292;
-  --bp-orange:#ff7a00;
-  --bp-orange-2:#ffb200;
-  --bp-green:#16b364;
-  --bp-green-2:#0f9b54;
-  --bp-shadow:0 20px 50px rgba(94,72,120,.12);
-  --bp-shadow-soft:0 10px 24px rgba(94,72,120,.08);
-}
-
-*{
-  box-sizing:border-box;
-}
-
-.bp-game-body{
-  margin:0;
-  min-height:100dvh;
-  font-family:'Nunito',system-ui,sans-serif;
-  color:var(--bp-text);
-  background:
-    radial-gradient(1200px 500px at 0% 0%, rgba(255,217,90,.25), transparent 45%),
-    radial-gradient(900px 420px at 100% 0%, rgba(255,103,168,.10), transparent 45%),
-    linear-gradient(180deg,var(--bp-bg-1),var(--bp-bg-2));
-  overflow-x:hidden;
-}
-
-#bp-confetti{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:100;
-}
-
-.bp-game-shell{
-  width:min(1240px, calc(100% - 24px));
-  margin:0 auto;
-  padding:18px 0 28px;
-}
-
-.bp-topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  flex-wrap:wrap;
-  margin-bottom:18px;
-}
-
-.bp-brand{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-.bp-logo{
-  width:66px;
-  height:66px;
-  object-fit:contain;
-  border-radius:18px;
-  background:#fff;
-  padding:6px;
-  box-shadow:var(--bp-shadow-soft);
-}
-
-.bp-eyebrow{
-  display:inline-block;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.7px;
-  color:#955f7b;
-  text-transform:uppercase;
-}
-
-.bp-title{
-  margin:0;
-  font-family:'Baloo 2',sans-serif;
-  font-size:40px;
-  line-height:1;
-  color:var(--bp-orange);
-}
-
-.bp-subtitle{
-  margin:4px 0 0;
-  font-size:15px;
-  color:var(--bp-muted);
-}
-
-.bp-current-prize{
-  background:rgba(255,255,255,.9);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:var(--bp-shadow-soft);
-  border-radius:22px;
-  padding:14px 18px;
-  display:grid;
-  gap:6px;
-  min-width:260px;
-}
-
-.bp-current-prize span{
-  font-size:12px;
-  font-weight:900;
-  text-transform:uppercase;
-  color:#8b819f;
-}
-
-.bp-current-prize strong{
-  font-size:17px;
-}
-
-.bp-hero{
-  background:rgba(255,255,255,.9);
-  border:1px solid rgba(255,255,255,.72);
-  box-shadow:var(--bp-shadow);
-  border-radius:30px;
-  padding:24px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:18px;
-  margin-bottom:16px;
-}
-
-.bp-badge{
-  display:inline-flex;
-  align-items:center;
-  border-radius:999px;
-  padding:10px 14px;
-  font-size:13px;
-  font-weight:900;
-  color:#8a5c22;
-  background:rgba(255,217,90,.28);
-}
-
-.bp-hero-copy h2{
-  margin:10px 0 8px;
-  font-family:'Baloo 2',sans-serif;
-  font-size:38px;
-  line-height:.95;
-  max-width:760px;
-}
-
-.bp-hero-copy p{
-  margin:0;
-  font-size:16px;
-  line-height:1.55;
-  color:var(--bp-muted);
-}
-
-.bp-hero-actions{
-  display:flex;
-  align-items:center;
-}
-
-.bp-btn{
-  border:none;
-  border-radius:999px;
-  padding:14px 20px;
-  font-weight:900;
-  cursor:pointer;
-  transition:transform .15s ease;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  text-decoration:none;
-}
-
-.bp-btn:hover{
-  transform:translateY(-1px);
-}
-
-.bp-btn-primary{
-  color:#fff;
-  background:linear-gradient(45deg,var(--bp-orange),var(--bp-orange-2));
-  box-shadow:0 12px 24px rgba(255,122,0,.24);
-}
-
-.bp-btn-success{
-  color:#fff;
-  background:linear-gradient(45deg,var(--bp-green),var(--bp-green-2));
-  box-shadow:0 12px 24px rgba(22,179,100,.22);
-}
-
-.bp-btn-light{
-  color:var(--bp-text);
-  background:#fff;
-  box-shadow:inset 0 0 0 1px rgba(94,72,120,.12);
-}
-
-.bp-status-row{
-  display:grid;
-  grid-template-columns:180px 1fr;
-  gap:14px;
-  margin-bottom:16px;
-}
-
-.bp-life-box,
-.bp-tip-box{
-  background:rgba(255,255,255,.9);
-  border-radius:22px;
-  box-shadow:var(--bp-shadow-soft);
-  padding:16px;
-}
-
-.bp-life-box span,
-.bp-tip-box span{
-  display:block;
-  font-size:12px;
-  font-weight:900;
-  color:#8b819f;
-  letter-spacing:.4px;
-  text-transform:uppercase;
-  margin-bottom:8px;
-}
-
-#bp-lives{
-  font-size:24px;
-}
-
-.bp-tip-box strong{
-  font-size:15px;
-  line-height:1.45;
-}
-
-.bp-scene-card{
-  background:rgba(255,255,255,.9);
-  border-radius:30px;
-  box-shadow:var(--bp-shadow);
-  padding:16px;
-}
-
-.bp-scene{
-  position:relative;
-  min-height:650px;
-  border-radius:24px;
-  overflow:hidden;
-}
-
-.bp-scene.ultra{
-  background:
-    radial-gradient(circle at 50% 20%, rgba(255,255,255,.92), transparent 18%),
-    radial-gradient(circle at 12% 25%, rgba(255,255,255,.5), transparent 10%),
-    radial-gradient(circle at 88% 18%, rgba(255,255,255,.4), transparent 12%),
-    linear-gradient(180deg,#0f2b5a 0%,#315fa9 28%,#8ad7ff 56%,#cbf0ff 58%,#d9f6d2 60%,#93d084 73%,#74b56a 100%);
-}
-
-.sky-glow{
-  position:absolute;
-  left:50%;
-  top:8%;
-  width:320px;
-  height:180px;
-  transform:translateX(-50%);
-  background:radial-gradient(circle, rgba(255,247,192,.6), transparent 70%);
-}
-
-.moon{
-  position:absolute;
-  right:10%;
-  top:8%;
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  background:radial-gradient(circle at 35% 35%, #fffbe7, #ffeab0 70%, #f4d36d 100%);
-  box-shadow:0 0 40px rgba(255,243,182,.5);
-}
-
-.tree{
-  position:absolute;
-  bottom:26%;
-  width:180px;
-  height:300px;
-}
-
-.tree:before{
-  content:"";
-  position:absolute;
-  bottom:0;
-  left:50%;
-  width:24px;
-  height:120px;
-  transform:translateX(-50%);
-  background:#7a5236;
-  border-radius:10px;
-}
-
-.tree:after{
-  content:"";
-  position:absolute;
-  left:50%;
-  top:0;
-  transform:translateX(-50%);
-  width:170px;
-  height:170px;
-  background:radial-gradient(circle at 50% 35%, #b6f18b, #58ad55 68%, #3c7c3f 100%);
-  border-radius:50%;
-}
-
-.tree.left{ left:0; }
-.tree.right{ right:0; }
-
-.mushroom{
-  position:absolute;
-  bottom:16%;
-  width:34px;
-  height:24px;
-  background:#fff2dc;
-  border-radius:0 0 14px 14px;
-}
-
-.mushroom:before{
-  content:"";
-  position:absolute;
-  left:50%;
-  bottom:12px;
-  transform:translateX(-50%);
-  width:54px;
-  height:28px;
-  background:#ff857a;
-  border-radius:28px 28px 10px 10px;
-  box-shadow:inset 0 -6px 0 rgba(0,0,0,.08);
-}
-
-.mushroom:after{
-  content:"";
-  position:absolute;
-  left:50%;
-  bottom:26px;
-  transform:translateX(-50%);
-  width:6px;
-  height:6px;
-  background:#fff;
-  border-radius:50%;
-  box-shadow:-14px 4px 0 #fff, 14px 2px 0 #fff;
-}
-
-.mushroom.m1{ left:14%; }
-.mushroom.m2{ left:48%; }
-.mushroom.m3{ right:18%; }
-
-.flower{
-  position:absolute;
-  bottom:13%;
-  width:22px;
-  height:22px;
-  background:#ff80ab;
-  border-radius:50%;
-  box-shadow:
-    0 -14px 0 #ffd54f,
-    -14px 0 0 #ce93d8,
-    14px 0 0 #80deea,
-    0 14px 0 #ffcc80;
-}
-
-.flower:after{
-  content:"";
-  position:absolute;
-  left:9px;
-  top:9px;
-  width:4px;
-  height:26px;
-  background:#4caf50;
-  border-radius:999px;
-}
-
-.flower.f1{ left:9%; }
-.flower.f2{ left:35%; }
-.flower.f3{ left:63%; }
-.flower.f4{ right:12%; }
-
-.stone{
-  position:absolute;
-  bottom:17%;
-  width:52px;
-  height:28px;
-  background:linear-gradient(180deg,#d3d6db,#acb4bf);
-  border-radius:999px;
-}
-
-.stone.s1{ left:26%; }
-.stone.s2{ right:28%; }
-
-.spark{
-  position:absolute;
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  background:rgba(255,255,255,.85);
-  box-shadow:0 0 14px rgba(255,255,255,.85);
-  animation:float 2.6s ease-in-out infinite alternate;
-}
-
-.spark.sp1{ left:20%; top:18%; }
-.spark.sp2{ left:56%; top:12%; animation-delay:.5s; }
-.spark.sp3{ right:20%; top:26%; animation-delay:.8s; }
-.spark.sp4{ left:44%; top:30%; animation-delay:1.2s; }
-
-.bunny-home{
-  position:absolute;
-  left:50%;
-  bottom:15%;
-  transform:translateX(-50%);
-  width:180px;
-  height:90px;
-  background:linear-gradient(180deg,#7dc96f,#5fab54);
-  border-radius:90px 90px 20px 20px;
-  box-shadow:0 12px 24px rgba(0,0,0,.12);
-}
-
-.bunny-home:before{
-  content:"";
-  position:absolute;
-  left:50%;
-  top:14px;
-  transform:translateX(-50%);
-  width:70px;
-  height:44px;
-  background:#4d3427;
-  border-radius:70px 70px 0 0;
-}
-
-.bunny-home:after{
-  content:"🐰";
-  position:absolute;
-  right:-14px;
-  top:-62px;
-  font-size:58px;
-  filter:drop-shadow(0 6px 10px rgba(0,0,0,.14));
-}
-
-.bp-board{
-  position:absolute;
-  inset:0;
-}
-
-.bp-egg-card{
-  position:absolute;
-  transform:translate(-50%, -50%);
-  cursor:pointer;
-  user-select:none;
-  transition:transform .18s ease, filter .18s ease;
-  background:none;
-  border:none;
-  padding:0;
-}
-
-.bp-egg-card.size-sm{ width:84px; height:108px; }
-.bp-egg-card.size-md{ width:100px; height:128px; }
-.bp-egg-card.size-lg{ width:118px; height:150px; }
-
-.bp-egg-card:hover{
-  transform:translate(-50%, -52%) scale(1.03);
-}
-
-.bp-egg-card.revealed{
-  pointer-events:none;
-}
-
-.bp-egg-shell,
-.bp-egg-open{
-  position:absolute;
-  inset:0;
-  border-radius:50% 50% 46% 46%;
-  box-shadow:0 12px 26px rgba(66,46,90,.16);
-}
-
-.bp-egg-shell{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#fff;
-  font-size:34px;
-  border:4px solid rgba(255,255,255,.92);
-  overflow:hidden;
-}
-
-.bp-egg-shell:before{
-  content:"";
-  position:absolute;
-  left:10%;
-  top:12%;
-  width:24%;
-  height:18%;
-  border-radius:999px;
-  background:rgba(255,255,255,.28);
-  transform:rotate(-24deg);
-}
-
-.bp-egg-shell .stripe{
-  position:absolute;
-  width:100%;
-  height:14px;
-  left:0;
-  top:48%;
-  transform:translateY(-50%);
-  background:rgba(255,255,255,.22);
-}
-
-.bp-egg-shell.theme-gold{ background:linear-gradient(180deg,#ffe082,#f6b73c); }
-.bp-egg-shell.theme-rose{ background:linear-gradient(180deg,#ffb3d1,#ff6fa7); }
-.bp-egg-shell.theme-sky{ background:linear-gradient(180deg,#a7e8ff,#44c0ff); }
-.bp-egg-shell.theme-lavender{ background:linear-gradient(180deg,#d7c5ff,#9b7bff); }
-.bp-egg-shell.theme-mint{ background:linear-gradient(180deg,#bdf5d0,#5ec988); }
-.bp-egg-shell.theme-sunset{ background:linear-gradient(180deg,#ffd0a8,#ff9b61); }
-.bp-egg-shell.theme-peach{ background:linear-gradient(180deg,#ffe1cf,#ffb58f); }
-.bp-egg-shell.theme-violet{ background:linear-gradient(180deg,#d7b6ff,#b06dff); }
-
-.bp-egg-open{
-  display:none;
-  background:#fffdf9;
-  border:4px solid rgba(255,255,255,.96);
-  padding:12px;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-family:'Baloo 2',sans-serif;
-  font-weight:800;
-  font-size:17px;
-  line-height:1.05;
-}
-
-.bp-egg-card.revealed .bp-egg-shell{
-  display:none;
-}
-
-.bp-egg-card.revealed .bp-egg-open{
-  display:flex;
-}
-
-.bp-egg-open.prize{ color:#3b3153; }
-.bp-egg-open.try{ color:#8c7f96; }
-.bp-egg-open.rotten{
-  background:linear-gradient(180deg,#745847,#4d382d);
-  color:#fff4df;
-}
-
-.bp-modal{
-  position:fixed;
-  inset:0;
-  background:rgba(47,35,61,.48);
-  backdrop-filter:blur(4px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  z-index:120;
-}
-
-.bp-modal.is-hidden{
-  display:none;
-}
-
-.bp-modal-card{
-  width:min(560px, 100%);
-  background:#fff;
-  border-radius:30px;
-  box-shadow:0 30px 65px rgba(46,30,61,.28);
-  padding:28px;
-  text-align:center;
-}
-
-.bp-result-icon{
-  font-size:56px;
-  line-height:1;
-}
-
-.bp-modal-card h3{
-  margin:10px 0 8px;
-  font-family:'Baloo 2',sans-serif;
-  font-size:42px;
-  line-height:.95;
-}
-
-.bp-result-message{
-  font-size:18px;
-  line-height:1.55;
-  color:var(--bp-text);
-}
-
-.bp-result-note{
-  margin:14px 0 0;
-  color:var(--bp-muted);
-  font-size:14px;
-  font-weight:800;
-}
-
-.bp-result-actions{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  justify-content:center;
-  margin-top:20px;
-}
-
-.bp-toast{
-  position:fixed;
-  left:50%;
-  bottom:16px;
-  transform:translateX(-50%);
-  background:#2e253c;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:999px;
-  font-size:13px;
-  font-weight:900;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .18s ease;
-  z-index:130;
-  max-width:min(92vw, 520px);
-  text-align:center;
-}
-
-.bp-toast.show{
-  opacity:1;
-}
-
-@keyframes float{
-  from{ transform:translateY(0); }
-  to{ transform:translateY(-8px); }
-}
-
-@media (max-width: 980px){
-  .bp-game-shell{
-    width:min(100% - 16px, 1240px);
-    padding:14px 0 22px;
+const BP_PRIZE_COLORS = {
+  "10 CONVIDADOS ADICIONAIS": "#ff7a18",
+  "15 CRIANÇAS DE 6 A 10 ANOS": "#ff5e94",
+  "30 CRIANÇAS DE 0 A 8 ANOS": "#18a0fb",
+  "DESCONTO DE R$350,00": "#16a34a",
+  "TENTE NOVAMENTE": "#9a7d8f",
+  "OVO CHOCO": "#6f4c3b"
+};
+
+const BP_ROTTEN_MESSAGES = [
+  "Eitaaa... esse ovo passou do ponto 🤢",
+  "Ops! Você encontrou um belo ovo choco 😂",
+  "Xi... esse coelhinho escondeu o ovo errado 🫣",
+  "Ih, esse aí tava premiado com mau cheiro 😅",
+  "Socorro! Ovo choco na área 💨🐣"
+];
+
+let bpFinished = false;
+let bpRoundActive = false;
+let bpLives = 3;
+let bpFound = {};
+let bpRottenHits = 0;
+
+const bpQs = (s) => document.querySelector(s);
+const bpQsa = (s) => Array.from(document.querySelectorAll(s));
+
+function bpResizeConfettiCanvas() {
+  const canvas = bpQs("#bp-confetti");
+  if (!canvas) return;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function bpShowToast(message) {
+  const toast = bpQs("#bp-toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+function bpRandomRottenMessage() {
+  return BP_ROTTEN_MESSAGES[Math.floor(Math.random() * BP_ROTTEN_MESSAGES.length)];
+}
+
+function bpShowConfetti() {
+  const canvas = bpQs("#bp-confetti");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  bpResizeConfettiCanvas();
+
+  const colors = ["#ff8a3d", "#ffd95b", "#ff6ea5", "#87e2ff", "#9d86ff", "#6de0a5", "#ffffff"];
+  const pieces = Array.from({ length: 280 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    r: 3 + Math.random() * 6,
+    vy: 2 + Math.random() * 4,
+    vx: -2 + Math.random() * 4,
+    rot: Math.random() * Math.PI,
+    vr: -0.2 + Math.random() * 0.4,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  }));
+
+  let running = true;
+  let frame = 0;
+
+  (function tick() {
+    if (!running) return;
+    frame++;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    pieces.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+
+      if (p.y > canvas.height + 20) {
+        p.y = -20;
+        p.x = Math.random() * canvas.width;
+      }
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r, -p.r, p.r * 2, p.r * 2);
+      ctx.restore();
+    });
+
+    if (frame < 300) {
+      requestAnimationFrame(tick);
+    } else {
+      running = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  })();
+}
+
+function bpUpdateLives() {
+  const livesEl = bpQs("#bp-lives");
+  if (livesEl) livesEl.textContent = "❤️".repeat(bpLives);
+}
+
+function bpUpdateCurrentPrize(text) {
+  const el = bpQs("#bp-current-prize-text");
+  if (el) el.textContent = text && text.trim() ? text : "Nenhuma ainda";
+}
+
+function bpOpenResult(mode, prize, whatsappText, whatsappNumber, currentPrize) {
+  const modal = bpQs("#bp-result-modal");
+  const icon = bpQs("#bp-result-icon");
+  const title = bpQs("#bp-result-title");
+  const message = bpQs("#bp-result-message");
+  const waBtn = bpQs("#bp-wa-btn");
+
+  if (!modal || !icon || !title || !message || !waBtn) return;
+
+  if (mode === "win") {
+    bpShowConfetti();
+    icon.textContent = "🎉";
+    title.textContent = "Parabéns!";
+    message.innerHTML = `VOCÊ ENCONTROU <strong style="color:${BP_PRIZE_COLORS[prize] || "#ff7a18"}">${prize}</strong>. Essa passa a ser sua cortesia atual na campanha.`;
+    waBtn.style.display = "inline-flex";
+    waBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
+    bpUpdateCurrentPrize(currentPrize);
+  } else if (mode === "rotten") {
+    icon.textContent = "💥";
+    title.textContent = "Ah não!";
+    message.innerHTML = `Você encontrou <strong style="color:${BP_PRIZE_COLORS["OVO CHOCO"]}">3 OVOS CHOCOS</strong> e a rodada foi reiniciada. Bora tentar de novo?`;
+    waBtn.style.display = "none";
+  } else {
+    icon.textContent = "🥚";
+    title.textContent = "Nova rodada";
+    message.innerHTML = `Você abriu todos os ovos e não fechou 3 iguais. Os ovos foram embaralhados novamente.`;
+    waBtn.style.display = "none";
   }
 
-  .bp-topbar{
-    align-items:flex-start;
+  modal.classList.remove("is-hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function bpCloseResult() {
+  const modal = bpQs("#bp-result-modal");
+  if (!modal) return;
+  modal.classList.add("is-hidden");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function bpClassifyValue(value) {
+  if (value === "OVO CHOCO") return "rotten";
+  if (value === "TENTE NOVAMENTE") return "try";
+  return "prize";
+}
+
+function bpApplyMobilePositions(board) {
+  const isMobile = window.innerWidth <= 640;
+  if (!isMobile) return board;
+
+  const mobilePositions = [
+    { x: 12, y: 71 },
+    { x: 26, y: 46 },
+    { x: 38, y: 78 },
+    { x: 48, y: 34 },
+    { x: 58, y: 59 },
+    { x: 69, y: 28 },
+    { x: 82, y: 72 },
+    { x: 90, y: 47 }
+  ];
+
+  return board.map((item, idx) => ({
+    ...item,
+    x: mobilePositions[idx].x,
+    y: mobilePositions[idx].y
+  }));
+}
+
+function bpRenderBoard(board) {
+  const boardEl = bpQs("#bp-board");
+  if (!boardEl) return;
+  boardEl.innerHTML = "";
+
+  const adjustedBoard = bpApplyMobilePositions(board);
+
+  adjustedBoard.forEach((item) => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `bp-egg-card theme-${item.theme} size-${item.size}`;
+    card.dataset.value = item.value;
+    card.dataset.profile = item.profile || "normal";
+    card.style.left = `${item.x}%`;
+    card.style.top = `${item.y}%`;
+
+    card.innerHTML = `
+      <div class="bp-egg-shell theme-${item.theme}">
+        <span class="stripe"></span>
+        🥚
+      </div>
+      <div class="bp-egg-open ${bpClassifyValue(item.value)}" style="color:${BP_PRIZE_COLORS[item.value] || "#3b3153"}">
+        ${item.value}
+      </div>
+    `;
+
+    card.addEventListener("click", () => bpRevealEgg(card));
+    boardEl.appendChild(card);
+  });
+}
+
+function bpAllEggsRevealed() {
+  const eggs = bpQsa(".bp-egg-card");
+  const revealed = bpQsa(".bp-egg-card.revealed");
+  return eggs.length > 0 && eggs.length === revealed.length;
+}
+
+function bpFinishLoseAndRestart(reason) {
+  bpFinished = true;
+  bpRoundActive = false;
+
+  fetch("/finish_round", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      outcome: "LOSE",
+      prize: null,
+      lives_lost: bpRottenHits,
+      found: bpFound
+    })
+  }).finally(() => {
+    if (reason === "rotten") {
+      bpOpenResult("rotten");
+    } else {
+      bpOpenResult("reset");
+    }
+  });
+}
+
+function bpCheckOutcomeAfterReveal() {
+  if (bpFinished || !bpRoundActive) return;
+
+  const winningPrize = Object.keys(bpFound).find((key) => bpFound[key] >= 3);
+
+  if (winningPrize) {
+    bpFinished = true;
+    bpRoundActive = false;
+
+    fetch("/finish_round", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        outcome: "WIN",
+        prize: winningPrize,
+        lives_lost: bpRottenHits,
+        found: bpFound
+      })
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        bpOpenResult("win", winningPrize, data.whatsapp_text, data.whatsapp_number, data.current_prize || winningPrize);
+      })
+      .catch(() => bpShowToast("Erro ao finalizar a rodada."));
+    return;
   }
 
-  .bp-current-prize{
-    width:100%;
-    min-width:auto;
+  if (bpRottenHits >= 3) {
+    bpFinishLoseAndRestart("rotten");
+    return;
   }
 
-  .bp-hero{
-    display:block;
-    padding:18px;
-  }
-
-  .bp-hero-copy h2{
-    font-size:34px;
-  }
-
-  .bp-hero-actions{
-    margin-top:16px;
-  }
-
-  .bp-status-row{
-    grid-template-columns:1fr;
-  }
-
-  .bp-scene{
-    min-height:560px;
+  if (bpAllEggsRevealed()) {
+    bpFinishLoseAndRestart("reset");
   }
 }
 
-@media (max-width: 640px){
-  .bp-title{
-    font-size:30px;
+function bpRevealEgg(card) {
+  if (!bpRoundActive || bpFinished || card.classList.contains("revealed")) return;
+
+  card.classList.add("revealed");
+  const value = card.dataset.value;
+
+  if (value === "OVO CHOCO") {
+    bpRottenHits += 1;
+    bpLives = Math.max(0, 3 - bpRottenHits);
+    bpUpdateLives();
+    bpShowToast(bpRandomRottenMessage());
+  } else if (value === "TENTE NOVAMENTE") {
+    bpShowToast("Quase! Esse ovo veio só com suspense ✨");
+  } else {
+    bpFound[value] = (bpFound[value] || 0) + 1;
   }
 
-  .bp-subtitle{
-    font-size:14px;
-  }
+  bpCheckOutcomeAfterReveal();
+}
 
-  .bp-hero-copy h2{
-    font-size:28px;
-  }
+async function bpStartRound(showToastOnError = true) {
+  bpFinished = false;
+  bpRoundActive = false;
+  bpLives = 3;
+  bpRottenHits = 0;
+  bpFound = {};
+  bpUpdateLives();
 
-  .bp-hero-copy p{
-    font-size:14px;
-  }
+  try {
+    const res = await fetch("/start_round", { method: "POST" });
+    const data = await res.json();
 
-  .bp-life-box,
-  .bp-tip-box,
-  .bp-current-prize{
-    padding:14px;
-  }
+    if (!data.ok) {
+      if (showToastOnError) bpShowToast("Não foi possível iniciar a rodada.");
+      return;
+    }
 
-  .bp-scene-card{
-    padding:10px;
-    border-radius:22px;
-  }
-
-  .bp-scene{
-    min-height:520px;
-    border-radius:18px;
-  }
-
-  .moon{
-    width:62px;
-    height:62px;
-    top:7%;
-    right:8%;
-  }
-
-  .tree{
-    width:110px;
-    height:220px;
-    bottom:25%;
-  }
-
-  .tree:before{
-    width:16px;
-    height:90px;
-  }
-
-  .tree:after{
-    width:110px;
-    height:110px;
-  }
-
-  .bunny-home{
-    width:120px;
-    height:58px;
-    bottom:14%;
-  }
-
-  .bunny-home:before{
-    width:46px;
-    height:28px;
-    top:10px;
-  }
-
-  .bunny-home:after{
-    font-size:40px;
-    top:-42px;
-    right:-8px;
-  }
-
-  .mushroom{
-    transform:scale(.82);
-  }
-
-  .flower{
-    transform:scale(.82);
-  }
-
-  .stone{
-    transform:scale(.86);
-  }
-
-  .spark{
-    transform:scale(.86);
-  }
-
-  .bp-egg-card.size-sm{ width:66px; height:84px; }
-  .bp-egg-card.size-md{ width:78px; height:100px; }
-  .bp-egg-card.size-lg{ width:92px; height:116px; }
-
-  .bp-egg-shell{
-    font-size:26px;
-    border-width:3px;
-  }
-
-  .bp-egg-shell .stripe{
-    height:10px;
-  }
-
-  .bp-egg-open{
-    font-size:12px;
-    padding:8px;
-    border-width:3px;
-  }
-
-  .bp-modal{
-    padding:12px;
-  }
-
-  .bp-modal-card{
-    padding:20px 16px;
-    border-radius:22px;
-  }
-
-  .bp-modal-card h3{
-    font-size:32px;
-  }
-
-  .bp-result-message{
-    font-size:16px;
-  }
-
-  .bp-result-actions{
-    flex-direction:column;
-  }
-
-  .bp-btn{
-    width:100%;
+    bpRenderBoard(data.board || []);
+    bpRoundActive = true;
+  } catch (error) {
+    console.error(error);
+    if (showToastOnError) bpShowToast("Erro ao iniciar a rodada.");
   }
 }
+
+window.addEventListener("resize", () => {
+  bpResizeConfettiCanvas();
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  bpResizeConfettiCanvas();
+  bpUpdateLives();
+
+  const startBtn = bpQs("#bp-start-btn");
+  const playAgainBtn = bpQs("#bp-play-again-btn");
+
+  if (startBtn) {
+    startBtn.addEventListener("click", async () => {
+      startBtn.style.display = "none";
+      await bpStartRound(true);
+    });
+  }
+
+  if (playAgainBtn) {
+    playAgainBtn.addEventListener("click", async () => {
+      bpCloseResult();
+      await bpStartRound(true);
+    });
+  }
+});
