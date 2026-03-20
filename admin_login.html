@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin • Biruta Park</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="auth-bg">
+  <main class="auth-card">
+    <div class="auth-badge">PAINEL ADMIN</div>
+    <h1>Entrar</h1>
+    <p>Gerencie clientes, cortesia atual e histórico da campanha.</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <form method="POST" class="auth-form">
+      <label><span>Usuário</span><input class="field" type="text" name="user" required></label>
+      <label><span>Senha</span><input class="field" type="password" name="password" required></label>
+      <button class="btn btn-gradient" type="submit">Entrar no painel</button>
+    </form>
+  </main>
+</body>
+</html>

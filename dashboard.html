@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard • Biruta Park</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <main class="page-shell">
+    <header class="dash-top">
+      <div>
+        <div class="auth-badge">BIRUTA PARK</div>
+        <h1 class="dash-title">Painel da campanha</h1>
+        <p class="dash-sub">Clientes, cortesia atual e histórico da Caça aos Ovos Mágica</p>
+      </div>
+      <a class="btn btn-light" href="{{ url_for('admin_logout') }}">Sair</a>
+    </header>
+
+    <section class="stats-grid">
+      <article class="stat-card"><span>Clientes cadastrados</span><strong>{{ total_clients }}</strong></article>
+      <article class="stat-card"><span>Rodadas jogadas</span><strong>{{ total_rounds }}</strong></article>
+      <article class="stat-card"><span>Vitórias</span><strong>{{ total_wins }}</strong></article>
+    </section>
+
+    <section class="table-card">
+      <h2>Clientes</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>WhatsApp</th>
+              <th>Cortesia atual</th>
+              <th>Rodadas</th>
+              <th>Vitórias</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for client in clients %}
+            <tr>
+              <td>{{ client['name'] }}</td>
+              <td>{{ format_phone(client['phone']) }}</td>
+              <td>{{ client['current_prize'] if client['current_prize'] else 'Nenhuma' }}</td>
+              <td>{{ client['rounds_played'] }}</td>
+              <td>{{ client['rounds_won'] }}</td>
+              <td>{{ 'Ativo' if client['is_active'] == 1 else 'Inativo' }}</td>
+              <td class="actions">
+                <a class="mini-link" href="{{ url_for('admin_edit_client', client_id=client['id']) }}">Editar</a>
+                <form method="POST" action="{{ url_for('admin_clear_prize', client_id=client['id']) }}" class="inline-form">
+                  <button class="mini-btn" type="submit">Limpar cortesia</button>
+                </form>
+                <form method="POST" action="{{ url_for('admin_delete_client', client_id=client['id']) }}" class="inline-form" onsubmit="return confirm('Excluir este cliente?');">
+                  <button class="mini-btn danger" type="submit">Excluir</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="table-card">
+      <h2>Histórico recente</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>WhatsApp</th>
+              <th>Resultado</th>
+              <th>Cortesia</th>
+              <th>Vidas perdidas</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for round in rounds %}
+            <tr>
+              <td>{{ round['played_at'] }}</td>
+              <td>{{ round['name'] }}</td>
+              <td>{{ format_phone(round['phone']) }}</td>
+              <td>{{ round['outcome'] }}</td>
+              <td>{{ round['prize'] if round['prize'] else '-' }}</td>
+              <td>{{ round['lives_lost'] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

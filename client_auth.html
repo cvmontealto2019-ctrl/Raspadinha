@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biruta Park • Páscoa Mágica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="auth-bg">
+  <div class="auth-magic-backdrop">
+    <span class="orb o1"></span>
+    <span class="orb o2"></span>
+    <span class="orb o3"></span>
+    <span class="orb o4"></span>
+  </div>
+
+  <main class="auth-shell premium-large">
+    <section class="auth-side-art">
+      <div class="auth-cloud c1"></div>
+      <div class="auth-cloud c2"></div>
+      <div class="auth-hill"></div>
+      <div class="auth-egg egg1"></div>
+      <div class="auth-egg egg2"></div>
+      <div class="auth-egg egg3"></div>
+      <div class="auth-bunny">🐰</div>
+      <div class="auth-stars">✨ ✨ ✨</div>
+    </section>
+
+    <section class="auth-panel premium-panel">
+      <div class="auth-badge">CAMPANHA DE PÁSCOA</div>
+      <h1>Caça aos Ovos Mágica</h1>
+      <p>
+        Cadastre-se para descobrir uma cortesia especial para o fechamento do seu novo contrato.
+      </p>
+
+      <form method="POST" action="{{ url_for('enter') }}" class="auth-form" novalidate>
+        <label>
+          <span>Nome completo</span>
+          <input id="name" class="field" type="text" name="name" placeholder="Ex: Maria Souza" required>
+        </label>
+
+        <label>
+          <span>WhatsApp</span>
+          <input id="phone" class="field" type="tel" name="phone" placeholder="(16) 99999-9999" required>
+        </label>
+
+        <div class="notice">
+          Você pode jogar novamente quantas vezes quiser. Ao ganhar uma nova cortesia, a anterior será substituída.
+        </div>
+
+        <button class="btn btn-gradient" type="submit">Participar da campanha</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const phoneInput = document.getElementById("phone");
+    phoneInput.addEventListener("input", () => {
+      let v = phoneInput.value.replace(/\D/g, "");
+      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length > 6) {
+        v = v.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+      } else if (v.length > 2) {
+        v = v.replace(/(\d{2})(\d+)/, "($1) $2");
+      }
+      phoneInput.value = v;
+    });
+  </script>
+</body>
+</html>

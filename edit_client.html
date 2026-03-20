@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar cliente • Biruta Park</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="auth-bg">
+  <main class="auth-card premium">
+    <div class="auth-badge">EDITAR CLIENTE</div>
+    <h1>{{ client['name'] }}</h1>
+    <form method="POST" class="auth-form">
+      <label><span>Nome completo</span><input class="field" type="text" name="name" value="{{ client['name'] }}" required></label>
+      <label><span>WhatsApp</span><input class="field" type="text" name="phone" value="{{ format_phone(client['phone']) }}" required></label>
+      <label><span>Cortesia atual</span><input class="field" type="text" name="current_prize" value="{{ client['current_prize'] if client['current_prize'] else '' }}"></label>
+      <label>
+        <span>Status</span>
+        <select class="field" name="is_active">
+          <option value="1" {% if client['is_active'] == 1 %}selected{% endif %}>Ativo</option>
+          <option value="0" {% if client['is_active'] == 0 %}selected{% endif %}>Inativo</option>
+        </select>
+      </label>
+      <button class="btn btn-gradient" type="submit">Salvar alterações</button>
+      <a class="btn btn-light" href="{{ url_for('dashboard') }}">Voltar</a>
+    </form>
+  </main>
+</body>
+</html>
