@@ -383,4 +383,3 @@ window.addEventListener("DOMContentLoaded", () => {
       bpCloseResult();
       await bpStartRound(true);
     });
-  }
