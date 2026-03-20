@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Caça aos Ovos Mágica • Biruta Park</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
@@ -13,7 +13,12 @@
   <main class="bp-game-shell">
     <header class="bp-topbar">
       <div class="bp-brand">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="bp-logo" onerror="this.style.display='none'">
+        <img
+          src="{{ url_for('static', filename='img/logo.png') }}"
+          alt="Logo"
+          class="bp-logo"
+          onerror="this.style.display='none'"
+        >
         <div>
           <span class="bp-eyebrow">BIRUTA PARK</span>
           <h1 class="bp-title">Caça aos Ovos Mágica</h1>
@@ -23,7 +28,9 @@
 
       <div class="bp-current-prize">
         <span>Cortesia atual</span>
-        <strong id="bp-current-prize-text">{{ current_prize if current_prize else 'Nenhuma ainda' }}</strong>
+        <strong id="bp-current-prize-text">
+          {{ current_prize if current_prize else 'Nenhuma ainda' }}
+        </strong>
       </div>
     </header>
 
@@ -32,12 +39,15 @@
         <span class="bp-badge">CAMPANHA ESPECIAL DE PÁSCOA</span>
         <h2>Procure os ovos escondidos e encontre 3 iguais</h2>
         <p>
-          Na sua primeira rodada, os ovos chocos vão dominar a brincadeira. Depois disso, continue caçando até conquistar sua nova cortesia.
+          Na primeira rodada, os ovos chocos vão aprontar bastante.
+          Depois disso, continue caçando até conquistar sua nova cortesia.
         </p>
       </div>
 
       <div class="bp-hero-actions">
-        <button id="bp-start-btn" class="bp-btn bp-btn-primary" type="button">COMEÇAR A CAÇA</button>
+        <button id="bp-start-btn" class="bp-btn bp-btn-primary" type="button">
+          COMEÇAR A CAÇA
+        </button>
       </div>
     </section>
 
@@ -46,9 +56,12 @@
         <span>Vidas</span>
         <strong id="bp-lives">❤️❤️❤️</strong>
       </div>
+
       <div class="bp-tip-box">
         <span>Importante</span>
-        <strong>Ao ganhar uma nova cortesia, a anterior será substituída.</strong>
+        <strong>
+          Ao ganhar uma nova cortesia, a anterior será substituída.
+        </strong>
       </div>
     </section>
 
@@ -56,22 +69,29 @@
       <div class="bp-scene ultra">
         <div class="sky-glow"></div>
         <div class="moon"></div>
+
         <div class="tree left"></div>
         <div class="tree right"></div>
+
         <div class="mushroom m1"></div>
         <div class="mushroom m2"></div>
         <div class="mushroom m3"></div>
+
         <div class="flower f1"></div>
         <div class="flower f2"></div>
         <div class="flower f3"></div>
         <div class="flower f4"></div>
+
         <div class="stone s1"></div>
         <div class="stone s2"></div>
+
         <div class="spark sp1"></div>
         <div class="spark sp2"></div>
         <div class="spark sp3"></div>
         <div class="spark sp4"></div>
+
         <div class="bunny-home"></div>
+
         <div id="bp-board" class="bp-board"></div>
       </div>
     </section>
@@ -85,9 +105,21 @@
       <p class="bp-result-note">
         Essa cortesia especial é válida para o fechamento de um novo contrato com o Biruta Park.
       </p>
+
       <div class="bp-result-actions">
-        <a id="bp-wa-btn" href="#" target="_blank" rel="noopener" class="bp-btn bp-btn-success">CHAMAR NO WHATSAPP</a>
-        <button id="bp-play-again-btn" type="button" class="bp-btn bp-btn-light">JOGAR NOVAMENTE</button>
+        <a
+          id="bp-wa-btn"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          class="bp-btn bp-btn-success"
+        >
+          CHAMAR NO WHATSAPP
+        </a>
+
+        <button id="bp-play-again-btn" type="button" class="bp-btn bp-btn-light">
+          JOGAR NOVAMENTE
+        </button>
       </div>
     </div>
   </div>
