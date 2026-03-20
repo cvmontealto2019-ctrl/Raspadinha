@@ -51,19 +51,26 @@
       </div>
     </section>
 
-    <section class="bp-status-row">
-      <div class="bp-life-box">
-        <span>Vidas</span>
-        <strong id="bp-lives">❤️❤️❤️</strong>
-      </div>
+<section class="bp-status-row">
+  <div class="bp-life-box">
+    <span>Vidas</span>
+    <strong id="bp-lives">❤️❤️❤️</strong>
+  </div>
 
-      <div class="bp-tip-box">
-        <span>Importante</span>
-        <strong>
-          Ao ganhar uma nova cortesia, a anterior será substituída.
-        </strong>
-      </div>
-    </section>
+  <div class="bp-tip-box">
+    <span>Tempo restante</span>
+    <strong id="bp-timer" data-expires="{{ expires_at if expires_at else '' }}">
+      --
+    </strong>
+  </div>
+
+  <div class="bp-tip-box">
+    <span>Importante</span>
+    <strong>
+      Ao ganhar uma nova cortesia, a anterior será substituída.
+    </strong>
+  </div>
+</section>
 
     <section class="bp-scene-card ultra">
       <div class="bp-scene ultra">
