@@ -663,16 +663,41 @@
 }
 
 @media (max-width: 640px){
+  .bp-game-shell{
+    width:min(100% - 10px, 1240px);
+    padding:10px 0 18px;
+  }
+
+  .bp-topbar{
+    gap:12px;
+    margin-bottom:12px;
+  }
+
+  .bp-brand{
+    gap:10px;
+    align-items:flex-start;
+  }
+
+  .bp-logo{
+    width:54px;
+    height:54px;
+  }
+
   .bp-title{
-    font-size:30px;
+    font-size:28px;
   }
 
   .bp-subtitle{
     font-size:14px;
   }
 
+  .bp-hero{
+    padding:14px;
+    border-radius:22px;
+  }
+
   .bp-hero-copy h2{
-    font-size:28px;
+    font-size:24px;
   }
 
   .bp-hero-copy p{
@@ -682,110 +707,111 @@
   .bp-life-box,
   .bp-tip-box,
   .bp-current-prize{
-    padding:14px;
-  }
-
-  .bp-scene-card{
-    padding:10px;
-    border-radius:22px;
-  }
-
-  .bp-scene{
-    min-height:520px;
+    padding:12px;
     border-radius:18px;
   }
 
+  .bp-scene-card{
+    padding:8px;
+    border-radius:18px;
+  }
+
+  .bp-scene{
+    min-height:500px;
+    border-radius:16px;
+  }
+
   .moon{
-    width:62px;
-    height:62px;
+    width:56px;
+    height:56px;
     top:7%;
     right:8%;
   }
 
   .tree{
-    width:110px;
-    height:220px;
-    bottom:25%;
+    width:94px;
+    height:190px;
+    bottom:26%;
   }
 
   .tree:before{
-    width:16px;
-    height:90px;
+    width:14px;
+    height:78px;
   }
 
   .tree:after{
-    width:110px;
-    height:110px;
+    width:96px;
+    height:96px;
   }
 
   .bunny-home{
-    width:120px;
-    height:58px;
-    bottom:14%;
+    width:100px;
+    height:50px;
+    bottom:13%;
   }
 
   .bunny-home:before{
-    width:46px;
-    height:28px;
-    top:10px;
+    width:38px;
+    height:22px;
+    top:8px;
   }
 
   .bunny-home:after{
-    font-size:40px;
-    top:-42px;
-    right:-8px;
+    font-size:34px;
+    top:-34px;
+    right:-6px;
   }
 
   .mushroom{
-    transform:scale(.82);
+    transform:scale(.72);
   }
 
   .flower{
-    transform:scale(.82);
+    transform:scale(.72);
   }
 
   .stone{
-    transform:scale(.86);
+    transform:scale(.78);
   }
 
   .spark{
-    transform:scale(.86);
+    transform:scale(.74);
   }
 
-  .bp-egg-card.size-sm{ width:66px; height:84px; }
-  .bp-egg-card.size-md{ width:78px; height:100px; }
-  .bp-egg-card.size-lg{ width:92px; height:116px; }
+  .bp-egg-card.size-sm{ width:58px; height:74px; }
+  .bp-egg-card.size-md{ width:70px; height:90px; }
+  .bp-egg-card.size-lg{ width:82px; height:104px; }
 
   .bp-egg-shell{
-    font-size:26px;
+    font-size:22px;
     border-width:3px;
   }
 
   .bp-egg-shell .stripe{
-    height:10px;
+    height:8px;
   }
 
   .bp-egg-open{
-    font-size:12px;
-    padding:8px;
+    font-size:11px;
+    padding:6px;
     border-width:3px;
   }
 
   .bp-modal{
-    padding:12px;
+    padding:10px;
   }
 
   .bp-modal-card{
-    padding:20px 16px;
-    border-radius:22px;
+    padding:18px 14px;
+    border-radius:20px;
   }
 
   .bp-modal-card h3{
-    font-size:32px;
+    font-size:28px;
   }
 
   .bp-result-message{
-    font-size:16px;
+    font-size:15px;
   }
 
   .bp-result-actions{
