@@ -4,44 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Caça aos Ovos Mágica • Biruta Park</title>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
 
   <style>
-    .bp-timer-box.urgent strong {
-      color: #d94b4b !important;
-      animation: pulseTimer 1s infinite;
-    }
-
     .bp-timer-box.warning strong {
       color: #e28b15 !important;
     }
 
-    .bp-btn-disabled {
-      opacity: .55;
-      pointer-events: none;
-      filter: grayscale(.15);
+    .bp-timer-box.urgent strong {
+      color: #d94b4b !important;
+      animation: pulse 1s infinite;
     }
 
-    @keyframes pulseTimer {
+    .bp-btn-disabled {
+      opacity: .6;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.04); }
+      50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
   </style>
 </head>
+
 <body class="bp-game-body">
   <canvas id="bp-confetti"></canvas>
 
   <main class="bp-game-shell">
+
+    <!-- HEADER -->
     <header class="bp-topbar">
       <div class="bp-brand">
-        <img
-          src="{{ url_for('static', filename='img/logo.png') }}"
-          alt="Logo"
-          class="bp-logo"
-          onerror="this.style.display='none'"
-        >
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="bp-logo">
         <div>
           <span class="bp-eyebrow">BIRUTA PARK</span>
           <h1 class="bp-title">Caça aos Ovos Mágica</h1>
@@ -57,24 +55,22 @@
       </div>
     </header>
 
+    <!-- HERO -->
     <section class="bp-hero compact">
-      <div class="bp-hero-copy">
+      <div>
         <span class="bp-badge">CAMPANHA ESPECIAL DE PÁSCOA</span>
         <h2>Procure os ovos escondidos e encontre 3 iguais</h2>
-        <p>
-          Encontre 3 ovos iguais para conquistar sua nova cortesia especial.
-          Mas cuidado: os ovos chocos também estão espalhados pelo cenário.
-        </p>
+        <p>Mas cuidado: existem ovos chocos no cenário 👀</p>
       </div>
 
-      <div class="bp-hero-actions">
-        <button id="bp-start-btn" class="bp-btn bp-btn-primary" type="button">
-          COMEÇAR A CAÇA
-        </button>
-      </div>
+      <button id="bp-start-btn" class="bp-btn bp-btn-primary">
+        COMEÇAR A CAÇA
+      </button>
     </section>
 
+    <!-- STATUS -->
     <section class="bp-status-row">
+
       <div class="bp-life-box">
         <span>Vidas</span>
         <strong id="bp-lives">❤️❤️❤️</strong>
@@ -82,19 +78,20 @@
 
       <div class="bp-tip-box bp-timer-box" id="bp-timer-box">
         <span>Tempo restante</span>
-        <strong id="bp-timer" data-expires="{{ expires_at if expires_at else '' }}">
+        <strong id="bp-timer"
+          data-expires-ts="{{ expires_at_ts if expires_at_ts else '' }}">
           Carregando...
         </strong>
       </div>
 
       <div class="bp-tip-box">
         <span>Importante</span>
-        <strong>
-          Ao ganhar uma nova cortesia, a anterior será substituída.
-        </strong>
+        <strong>Ao ganhar uma nova cortesia, a anterior será substituída.</strong>
       </div>
+
     </section>
 
+    <!-- CENÁRIO -->
     <section class="bp-scene-card ultra">
       <div class="bp-scene ultra">
         <div class="sky-glow"></div>
@@ -103,55 +100,32 @@
         <div class="tree left"></div>
         <div class="tree right"></div>
 
-        <div class="mushroom m1"></div>
-        <div class="mushroom m2"></div>
-        <div class="mushroom m3"></div>
-
-        <div class="flower f1"></div>
-        <div class="flower f2"></div>
-        <div class="flower f3"></div>
-        <div class="flower f4"></div>
-
-        <div class="stone s1"></div>
-        <div class="stone s2"></div>
-
-        <div class="spark sp1"></div>
-        <div class="spark sp2"></div>
-        <div class="spark sp3"></div>
-        <div class="spark sp4"></div>
-
         <div class="bunny-home"></div>
 
         <div id="bp-board" class="bp-board"></div>
       </div>
     </section>
+
   </main>
 
-  <div id="bp-result-modal" class="bp-modal is-hidden" aria-hidden="true">
+  <!-- MODAL -->
+  <div id="bp-result-modal" class="bp-modal is-hidden">
     <div class="bp-modal-card">
-      <div id="bp-result-icon" class="bp-result-icon">🎉</div>
-      <h3 id="bp-result-title">Parabéns!</h3>
-      <div id="bp-result-message" class="bp-result-message"></div>
-      <p class="bp-result-note">
-        A cortesia será válida apenas para fechar uma nova festa nos pacotes:
-        <strong>Gourmet, Cheff, Biruta ou Birutinha</strong>.
+      <h3 id="bp-result-title">Resultado</h3>
+      <div id="bp-result-message"></div>
+
+      <p>
+        Válido para pacotes:
+        <strong>Gourmet, Cheff, Biruta ou Birutinha</strong>
       </p>
 
-      <div class="bp-result-actions">
-        <a
-          id="bp-wa-btn"
-          href="#"
-          target="_blank"
-          rel="noopener"
-          class="bp-btn bp-btn-success"
-        >
-          CHAMAR NO WHATSAPP
-        </a>
+      <a id="bp-wa-btn" target="_blank" class="bp-btn bp-btn-success">
+        CHAMAR NO WHATSAPP
+      </a>
 
-        <button id="bp-play-again-btn" type="button" class="bp-btn bp-btn-light">
-          JOGAR NOVAMENTE
-        </button>
-      </div>
+      <button id="bp-play-again-btn" class="bp-btn bp-btn-light">
+        JOGAR NOVAMENTE
+      </button>
     </div>
   </div>
 
@@ -159,87 +133,65 @@
 
   <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 
+  <!-- CONTADOR CORRIGIDO -->
   <script>
-    function bpShowTimerToast(message) {
-      const toast = document.getElementById("bp-toast");
-      if (!toast) return;
-      toast.textContent = message;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2600);
+    function disableGame() {
+      const btn = document.getElementById("bp-start-btn");
+      btn.disabled = true;
+      btn.classList.add("bp-btn-disabled");
+      btn.innerText = "TEMPO ENCERRADO";
     }
 
-    function bpDisableStartButton() {
-      const startBtn = document.getElementById("bp-start-btn");
-      if (!startBtn) return;
-      startBtn.disabled = true;
-      startBtn.classList.add("bp-btn-disabled");
-      startBtn.textContent = "TEMPO ENCERRADO";
-    }
+    function startCountdown() {
+      const el = document.getElementById("bp-timer");
+      const box = document.getElementById("bp-timer-box");
 
-    function bpStartCountdown() {
-      const timerEl = document.getElementById("bp-timer");
-      const timerBox = document.getElementById("bp-timer-box");
-      const expiresAt = timerEl ? timerEl.dataset.expires : "";
+      const ts = el.dataset.expiresTs;
 
-      if (!timerEl || !expiresAt) {
-        if (timerEl) timerEl.textContent = "--";
+      if (!ts) {
+        el.innerText = "--";
         return;
       }
 
-      let alreadyExpiredHandled = false;
+      const end = Number(ts) * 1000;
 
-      function updateTimer() {
-        const end = new Date(expiresAt.replace(" ", "T"));
-        const now = new Date();
+      function update() {
+        const now = Date.now();
         const diff = end - now;
 
         if (diff <= 0) {
-          timerEl.textContent = "Tempo encerrado";
-          timerBox.classList.remove("warning");
-          timerBox.classList.add("urgent");
-          bpDisableStartButton();
+          el.innerText = "Encerrado";
+          box.classList.add("urgent");
+          disableGame();
 
-          if (!alreadyExpiredHandled) {
-            alreadyExpiredHandled = true;
-            bpShowTimerToast("Seu tempo para jogar acabou.");
-            setTimeout(() => {
-              window.location.reload();
-            }, 1800);
-          }
+          setTimeout(() => location.reload(), 1500);
           return;
         }
 
-        const totalSeconds = Math.floor(diff / 1000);
-        const days = Math.floor(totalSeconds / 86400);
-        const hours = Math.floor((totalSeconds % 86400) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
+        const total = Math.floor(diff / 1000);
 
-        let text = "";
-        if (days > 0) {
-          text = `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min`;
-        } else {
-          text = `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
-        }
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
 
-        timerEl.textContent = text;
+        el.innerText =
+          `${String(h).padStart(2, "0")}h ${String(m).padStart(2, "0")}min ${String(s).padStart(2, "0")}s`;
 
-        timerBox.classList.remove("warning", "urgent");
+        box.classList.remove("warning", "urgent");
 
-        if (totalSeconds <= 1800) {
-          timerBox.classList.add("urgent");
-        } else if (totalSeconds <= 7200) {
-          timerBox.classList.add("warning");
+        if (total < 1800) {
+          box.classList.add("urgent");
+        } else if (total < 7200) {
+          box.classList.add("warning");
         }
       }
 
-      updateTimer();
-      setInterval(updateTimer, 1000);
+      update();
+      setInterval(update, 1000);
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
-      bpStartCountdown();
-    });
+    window.onload = startCountdown;
   </script>
+
 </body>
 </html>
