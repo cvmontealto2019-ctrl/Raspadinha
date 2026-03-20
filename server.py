@@ -3,7 +3,7 @@ import re
 import json
 import random
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 
@@ -40,21 +40,36 @@ MAGIC_POSITIONS = [
 
 THEMES = ["gold", "rose", "sky", "lavender", "mint", "sunset", "peach", "violet"]
 
+
 def db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
+
 def digits_only(value):
     return re.sub(r"\D+", "", value or "")
+
+
+def expires_in_24h():
+    return (datetime.now() + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def is_expired(expires_at):
+    if not expires_at:
+        return False
+    return datetime.now() > datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S")
+
 
 def normalize_name(name):
     cleaned = " ".join((name or "").strip().split())
     return " ".join(word.capitalize() for word in cleaned.split())
 
+
 def valid_full_name(name):
     parts = [p for p in (name or "").strip().split() if p]
     return len(parts) >= 2
+
 
 def format_phone(phone):
     d = digits_only(phone)
@@ -64,12 +79,15 @@ def format_phone(phone):
         return f"({d[:2]}) {d[2:6]}-{d[6:]}"
     return d
 
+
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 def init_db():
     conn = db()
     c = conn.cursor()
+
     c.execute("""
         CREATE TABLE IF NOT EXISTS clients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,9 +98,11 @@ def init_db():
             rounds_played INTEGER NOT NULL DEFAULT 0,
             rounds_won INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
+            updated_at TEXT NOT NULL,
+            expires_at TEXT
         )
     """)
+
     c.execute("""
         CREATE TABLE IF NOT EXISTS rounds (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,13 +115,20 @@ def init_db():
             found_json TEXT NOT NULL
         )
     """)
+
+    columns = [row["name"] for row in c.execute("PRAGMA table_info(clients)").fetchall()]
+    if "expires_at" not in columns:
+        c.execute("ALTER TABLE clients ADD COLUMN expires_at TEXT")
+
     conn.commit()
     conn.close()
+
 
 def round_profile(rounds_played: int):
     if rounds_played == 0:
         return "first_forced_lose"
     return "normal"
+
 
 def build_board(rounds_played: int):
     profile = round_profile(rounds_played)
@@ -114,16 +141,12 @@ def build_board(rounds_played: int):
     random.shuffle(decoy_prizes)
 
     if profile == "first_forced_lose":
-        # Primeira rodada: 3 ovos chocos + 3 prêmios + 2 tente novamente
-        # Continua existindo chance visual de prêmio, mas com muito risco.
         values = [
             ROTTEN, ROTTEN, ROTTEN,
             winning_prize, winning_prize, winning_prize,
             TRY_AGAIN, TRY_AGAIN,
         ]
     else:
-        # Todas as outras rodadas: sempre 3 chocos + 3 prêmios + 2 distrações
-        # Mantém o risco constante em todas as telas.
         values = [
             ROTTEN, ROTTEN, ROTTEN,
             winning_prize, winning_prize, winning_prize,
@@ -147,40 +170,11 @@ def build_board(rounds_played: int):
 
     return board
 
-    if profile == "first_forced_lose":
-        values = [ROTTEN, ROTTEN, ROTTEN, TRY_AGAIN, TRY_AGAIN]
-        values += random.sample(PRIZES, 3)
-        random.shuffle(values)
-    else:
-        winning_prize = random.choice(PRIZES)
-        decoy_prizes = [p for p in PRIZES if p != winning_prize]
-        random.shuffle(decoy_prizes)
-        values = [
-            winning_prize, winning_prize, winning_prize,
-            ROTTEN, ROTTEN,
-            TRY_AGAIN,
-            decoy_prizes[0],
-            decoy_prizes[1],
-        ]
-        random.shuffle(values)
-
-    board = []
-    for idx, value in enumerate(values):
-        pos = positions[idx]
-        board.append({
-            "id": idx + 1,
-            "value": value,
-            "theme": THEMES[idx % len(THEMES)],
-            "x": pos["x"],
-            "y": pos["y"],
-            "size": pos["size"],
-            "profile": profile,
-        })
-    return board
 
 @app.route("/")
 def home():
     return render_template("client_auth.html")
+
 
 @app.route("/enter", methods=["POST"])
 def enter():
@@ -210,15 +204,23 @@ def enter():
 
     if client:
         c.execute(
-            "UPDATE clients SET name = ?, is_active = 1, updated_at = ? WHERE id = ?",
-            (name, now_str(), client["id"])
+            """
+            UPDATE clients
+            SET name = ?, is_active = 1, updated_at = ?, expires_at = ?
+            WHERE id = ?
+            """,
+            (name, now_str(), expires_in_24h(), client["id"])
         )
         client_id = client["id"]
     else:
         c.execute("""
-            INSERT INTO clients (name, phone, current_prize, is_active, rounds_played, rounds_won, created_at, updated_at)
-            VALUES (?, ?, NULL, 1, 0, 0, ?, ?)
-        """, (name, phone, now_str(), now_str()))
+            INSERT INTO clients (
+                name, phone, current_prize, is_active,
+                rounds_played, rounds_won,
+                created_at, updated_at, expires_at
+            )
+            VALUES (?, ?, NULL, 1, 0, 0, ?, ?, ?)
+        """, (name, phone, now_str(), now_str(), expires_in_24h()))
         client_id = c.lastrowid
 
     conn.commit()
@@ -227,6 +229,7 @@ def enter():
     session["client_id"] = client_id
     session.pop("active_round", None)
     return redirect(url_for("game"))
+
 
 @app.route("/game")
 def game():
@@ -240,12 +243,12 @@ def game():
     client = c.fetchone()
     conn.close()
 
-    if not client or int(client["is_active"]) != 1:
+    if not client or int(client["is_active"]) != 1 or is_expired(client["expires_at"]):
         session.clear()
         return render_template(
             "message.html",
-            title="ACESSO INDISPONÍVEL",
-            message="Seu acesso não está disponível no momento. Entre em contato com o Biruta Park.",
+            title="ACESSO ENCERRADO",
+            message="Seu prazo para jogar expirou. Fale com nossa equipe caso precise de um novo acesso.",
             back=url_for("home")
         )
 
@@ -254,6 +257,7 @@ def game():
         name=client["name"],
         current_prize=client["current_prize"] or ""
     )
+
 
 @app.route("/start_round", methods=["POST"])
 def start_round():
@@ -270,6 +274,9 @@ def start_round():
     if not client or int(client["is_active"]) != 1:
         return jsonify(ok=False, error="client_not_found"), 404
 
+    if is_expired(client["expires_at"]):
+        return jsonify(ok=False, error="expired"), 403
+
     rounds_played = int(client["rounds_played"])
     board = build_board(rounds_played)
     session["active_round"] = {"board": board}
@@ -279,6 +286,7 @@ def start_round():
         board=board,
         forced_first_loss=(rounds_played == 0)
     )
+
 
 @app.route("/finish_round", methods=["POST"])
 def finish_round():
@@ -333,7 +341,7 @@ def finish_round():
     whatsapp_text = ""
     if prize:
         whatsapp_text = (
-            f'Oii! Acabei de ganhar a cortesia "{prize}" . Na caça aos ovos do Buffet Biruta Park! 🐰✨. '
+            f'Oii! Acabei de ganhar a cortesia "{prize}" na caça aos ovos do Buffet Biruta Park! 🐰✨. '
             f'Sei que essa cortesia especial é para o fechamento de um novo contrato em até 3 dias úteis. '
             f'Gostaria de receber um orçamento!'
         )
@@ -344,6 +352,7 @@ def finish_round():
         whatsapp_number=WHATSAPP_NUMBER,
         whatsapp_text=whatsapp_text
     )
+
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
@@ -356,10 +365,12 @@ def admin():
         return render_template("admin_login.html", error="Login ou senha inválidos.")
     return render_template("admin_login.html", error=None)
 
+
 @app.route("/admin/logout")
 def admin_logout():
     session.pop("admin", None)
     return redirect(url_for("admin"))
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -400,7 +411,9 @@ def dashboard():
         clients=clients,
         rounds=rounds,
         format_phone=format_phone,
+        is_expired=is_expired,
     )
+
 
 @app.route("/admin/client/<int:client_id>/edit", methods=["GET", "POST"])
 def admin_edit_client(client_id):
@@ -435,10 +448,12 @@ def admin_edit_client(client_id):
     conn.close()
     return render_template("edit_client.html", client=client, format_phone=format_phone)
 
+
 @app.route("/admin/client/<int:client_id>/delete", methods=["POST"])
 def admin_delete_client(client_id):
     if not session.get("admin"):
         return redirect(url_for("admin"))
+
     conn = db()
     c = conn.cursor()
     c.execute("DELETE FROM rounds WHERE client_id = ?", (client_id,))
@@ -447,16 +462,36 @@ def admin_delete_client(client_id):
     conn.close()
     return redirect(url_for("dashboard"))
 
+
 @app.route("/admin/client/<int:client_id>/clear_prize", methods=["POST"])
 def admin_clear_prize(client_id):
     if not session.get("admin"):
         return redirect(url_for("admin"))
+
     conn = db()
     c = conn.cursor()
     c.execute("UPDATE clients SET current_prize = NULL, updated_at = ? WHERE id = ?", (now_str(), client_id))
     conn.commit()
     conn.close()
     return redirect(url_for("dashboard"))
+
+
+@app.route("/admin/client/<int:client_id>/reset_expiration", methods=["POST"])
+def admin_reset_expiration(client_id):
+    if not session.get("admin"):
+        return redirect(url_for("admin"))
+
+    conn = db()
+    c = conn.cursor()
+    c.execute(
+        "UPDATE clients SET expires_at = ?, updated_at = ? WHERE id = ?",
+        (expires_in_24h(), now_str(), client_id)
+    )
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("dashboard"))
+
 
 if __name__ == "__main__":
     init_db()
