@@ -61,6 +61,26 @@ def is_expired(expires_at):
     return datetime.now() > datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S")
 
 
+def remaining_time(expires_at):
+    if not expires_at:
+        return "-"
+
+    exp = datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S")
+    diff = exp - datetime.now()
+
+    if diff.total_seconds() <= 0:
+        return "Expirado"
+
+    total_seconds = int(diff.total_seconds())
+    days = total_seconds // 86400
+    hours = (total_seconds % 86400) // 3600
+    minutes = (total_seconds % 3600) // 60
+
+    if days > 0:
+        return f"{days}d {hours}h {minutes}min"
+    return f"{hours}h {minutes}min"
+
+
 def normalize_name(name):
     cleaned = " ".join((name or "").strip().split())
     return " ".join(word.capitalize() for word in cleaned.split())
@@ -252,12 +272,12 @@ def game():
             back=url_for("home")
         )
 
-   return render_template(
-    "game.html",
-    name=client["name"],
-    current_prize=client["current_prize"] or "",
-    expires_at=client["expires_at"] or ""
-   )
+    return render_template(
+        "game.html",
+        name=client["name"],
+        current_prize=client["current_prize"] or "",
+        expires_at=client["expires_at"] or ""
+    )
 
 
 @app.route("/start_round", methods=["POST"])
@@ -413,6 +433,7 @@ def dashboard():
         rounds=rounds,
         format_phone=format_phone,
         is_expired=is_expired,
+        remaining_time=remaining_time,
     )
 
 
@@ -471,7 +492,10 @@ def admin_clear_prize(client_id):
 
     conn = db()
     c = conn.cursor()
-    c.execute("UPDATE clients SET current_prize = NULL, updated_at = ? WHERE id = ?", (now_str(), client_id))
+    c.execute(
+        "UPDATE clients SET current_prize = NULL, updated_at = ? WHERE id = ?",
+        (now_str(), client_id)
+    )
     conn.commit()
     conn.close()
     return redirect(url_for("dashboard"))
