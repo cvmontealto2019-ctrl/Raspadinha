@@ -54,6 +54,9 @@
                 </form>
                 <form method="POST" action="{{ url_for('admin_delete_client', client_id=client['id']) }}" class="inline-form" onsubmit="return confirm('Excluir este cliente?');">
                   <button class="mini-btn danger" type="submit">Excluir</button>
+                  <form method="POST" action="{{ url_for('admin_reset_expiration', client_id=client['id']) }}" class="inline-form">
+  <button class="mini-btn" type="submit">Renovar 24h</button>
+                  </form>
                 </form>
               </td>
             </tr>
