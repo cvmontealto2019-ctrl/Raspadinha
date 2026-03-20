@@ -204,6 +204,11 @@ def build_board(rounds_played: int):
     return board
 
 
+@app.route("/health")
+def health():
+    return "ok", 200
+
+
 @app.route("/")
 def home():
     return render_template("client_auth.html")
@@ -316,6 +321,7 @@ def start_round():
         return jsonify(ok=False, error="client_not_found"), 404
 
     if is_expired(client["expires_at"]):
+        session.clear()
         return jsonify(ok=False, error="expired"), 403
 
     rounds_played = int(client["rounds_played"] or 0)
