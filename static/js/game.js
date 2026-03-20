@@ -45,34 +45,67 @@ function bpRandomRottenMessage() {
 
 function bpStartCountdown() {
   const timerEl = bpQs("#bp-timer");
+  const timerBox = bpQs("#bp-timer-box");
   if (!timerEl) return;
 
-  const expiresAt = timerEl.dataset.expires;
-  if (!expiresAt) {
+  const expiresTs = timerEl.dataset.expiresTs;
+  if (!expiresTs) {
     timerEl.textContent = "--";
     return;
   }
 
+  let expiredHandled = false;
+  const endMs = Number(expiresTs) * 1000;
+
   function updateTimer() {
-    const end = new Date(expiresAt.replace(" ", "T"));
-    const now = new Date();
-    const diff = end - now;
+    const diff = endMs - Date.now();
 
     if (diff <= 0) {
       timerEl.textContent = "Tempo encerrado";
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      if (timerBox) {
+        timerBox.classList.remove("warning");
+        timerBox.classList.add("urgent");
+      }
+
+      const startBtn = bpQs("#bp-start-btn");
+      if (startBtn) {
+        startBtn.disabled = true;
+        startBtn.classList.add("bp-btn-disabled");
+        startBtn.textContent = "TEMPO ENCERRADO";
+      }
+
+      if (!expiredHandled) {
+        expiredHandled = true;
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }
       return;
     }
 
     const totalSeconds = Math.floor(diff / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    timerEl.textContent =
-      `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
+    if (days > 0) {
+      timerEl.textContent =
+        `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min`;
+    } else {
+      timerEl.textContent =
+        `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
+    }
+
+    if (timerBox) {
+      timerBox.classList.remove("warning", "urgent");
+
+      if (totalSeconds <= 1800) {
+        timerBox.classList.add("urgent");
+      } else if (totalSeconds <= 7200) {
+        timerBox.classList.add("warning");
+      }
+    }
   }
 
   updateTimer();
@@ -290,7 +323,13 @@ function bpCheckOutcomeAfterReveal() {
     })
       .then((r) => r.json())
       .then((data) => {
-        bpOpenResult("win", winningPrize, data.whatsapp_text, data.whatsapp_number, data.current_prize || winningPrize);
+        bpOpenResult(
+          "win",
+          winningPrize,
+          data.whatsapp_text,
+          data.whatsapp_number,
+          data.current_prize || winningPrize
+        );
       })
       .catch(() => bpShowToast("Erro ao finalizar a rodada."));
     return;
@@ -377,9 +416,3 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-  if (playAgainBtn) {
-    playAgainBtn.addEventListener("click", async () => {
-      bpCloseResult();
-      await bpStartRound(true);
-    });
