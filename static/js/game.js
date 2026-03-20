@@ -62,6 +62,7 @@ function bpStartCountdown() {
 
     if (diff <= 0) {
       timerEl.textContent = "Tempo encerrado";
+
       if (timerBox) {
         timerBox.classList.remove("warning");
         timerBox.classList.add("urgent");
@@ -90,11 +91,9 @@ function bpStartCountdown() {
     const seconds = totalSeconds % 60;
 
     if (days > 0) {
-      timerEl.textContent =
-        `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min`;
+      timerEl.textContent = `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min`;
     } else {
-      timerEl.textContent =
-        `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
+      timerEl.textContent = `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
     }
 
     if (timerBox) {
@@ -115,6 +114,7 @@ function bpStartCountdown() {
 function bpShowConfetti() {
   const canvas = bpQs("#bp-confetti");
   if (!canvas) return;
+
   const ctx = canvas.getContext("2d");
   bpResizeConfettiCanvas();
 
@@ -135,6 +135,7 @@ function bpShowConfetti() {
 
   (function tick() {
     if (!running) return;
+
     frame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -167,12 +168,16 @@ function bpShowConfetti() {
 
 function bpUpdateLives() {
   const livesEl = bpQs("#bp-lives");
-  if (livesEl) livesEl.textContent = "❤️".repeat(bpLives);
+  if (livesEl) {
+    livesEl.textContent = "❤️".repeat(bpLives);
+  }
 }
 
 function bpUpdateCurrentPrize(text) {
   const el = bpQs("#bp-current-prize-text");
-  if (el) el.textContent = text && text.trim() ? text : "Nenhuma ainda";
+  if (el) {
+    el.textContent = text && String(text).trim() ? text : "Nenhuma ainda";
+  }
 }
 
 function bpOpenResult(mode, prize, whatsappText, whatsappNumber, currentPrize) {
@@ -190,7 +195,7 @@ function bpOpenResult(mode, prize, whatsappText, whatsappNumber, currentPrize) {
     title.textContent = "Parabéns!";
     message.innerHTML = `VOCÊ ENCONTROU <strong style="color:${BP_PRIZE_COLORS[prize] || "#ff7a18"}">${prize}</strong>. Essa passa a ser sua cortesia atual na campanha.`;
     waBtn.style.display = "inline-flex";
-    waBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
+    waBtn.href = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText || "")}`;
     bpUpdateCurrentPrize(currentPrize);
   } else if (mode === "rotten") {
     icon.textContent = "💥";
@@ -246,8 +251,8 @@ function bpApplyMobilePositions(board) {
 function bpRenderBoard(board) {
   const boardEl = bpQs("#bp-board");
   if (!boardEl) return;
-  boardEl.innerHTML = "";
 
+  boardEl.innerHTML = "";
   const adjustedBoard = bpApplyMobilePositions(board);
 
   adjustedBoard.forEach((item) => {
@@ -331,7 +336,10 @@ function bpCheckOutcomeAfterReveal() {
           data.current_prize || winningPrize
         );
       })
-      .catch(() => bpShowToast("Erro ao finalizar a rodada."));
+      .catch(() => {
+        bpShowToast("Erro ao finalizar a rodada.");
+      });
+
     return;
   }
 
@@ -378,7 +386,13 @@ async function bpStartRound(showToastOnError = true) {
     const data = await res.json();
 
     if (!data.ok) {
-      if (showToastOnError) bpShowToast("Não foi possível iniciar a rodada.");
+      if (showToastOnError) {
+        if (data.error === "expired") {
+          bpShowToast("Seu tempo para jogar expirou.");
+        } else {
+          bpShowToast("Não foi possível iniciar a rodada.");
+        }
+      }
       return;
     }
 
