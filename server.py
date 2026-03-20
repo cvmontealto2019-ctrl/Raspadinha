@@ -51,36 +51,6 @@ def digits_only(value):
     return re.sub(r"\D+", "", value or "")
 
 
-def expires_in_24h():
-    return (datetime.now() + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
-
-
-def is_expired(expires_at):
-    if not expires_at:
-        return False
-    return datetime.now() > datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S")
-
-
-def remaining_time(expires_at):
-    if not expires_at:
-        return "-"
-
-    exp = datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S")
-    diff = exp - datetime.now()
-
-    if diff.total_seconds() <= 0:
-        return "Expirado"
-
-    total_seconds = int(diff.total_seconds())
-    days = total_seconds // 86400
-    hours = (total_seconds % 86400) // 3600
-    minutes = (total_seconds % 3600) // 60
-
-    if days > 0:
-        return f"{days}d {hours}h {minutes}min"
-    return f"{hours}h {minutes}min"
-
-
 def normalize_name(name):
     cleaned = " ".join((name or "").strip().split())
     return " ".join(word.capitalize() for word in cleaned.split())
@@ -100,8 +70,51 @@ def format_phone(phone):
     return d
 
 
+def now_dt():
+    return datetime.now()
+
+
 def now_str():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return now_dt().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def expires_in_24h():
+    return (now_dt() + timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def parse_dt(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return None
+
+
+def is_expired(expires_at):
+    exp = parse_dt(expires_at)
+    if not exp:
+        return False
+    return now_dt() > exp
+
+
+def remaining_time(expires_at):
+    exp = parse_dt(expires_at)
+    if not exp:
+        return "-"
+
+    diff = exp - now_dt()
+    if diff.total_seconds() <= 0:
+        return "Expirado"
+
+    total_seconds = int(diff.total_seconds())
+    days = total_seconds // 86400
+    hours = (total_seconds % 86400) // 3600
+    minutes = (total_seconds % 3600) // 60
+
+    if days > 0:
+        return f"{days}d {hours}h {minutes}min"
+    return f"{hours}h {minutes}min"
 
 
 def init_db():
@@ -248,6 +261,7 @@ def enter():
 
     session["client_id"] = client_id
     session.pop("active_round", None)
+
     return redirect(url_for("game"))
 
 
@@ -273,10 +287,9 @@ def game():
         )
 
     expires_at_ts = ""
-    if client["expires_at"]:
-        expires_at_ts = int(
-            datetime.strptime(client["expires_at"], "%Y-%m-%d %H:%M:%S").timestamp()
-        )
+    exp_dt = parse_dt(client["expires_at"])
+    if exp_dt:
+        expires_at_ts = int(exp_dt.timestamp())
 
     return render_template(
         "game.html",
@@ -305,7 +318,7 @@ def start_round():
     if is_expired(client["expires_at"]):
         return jsonify(ok=False, error="expired"), 403
 
-    rounds_played = int(client["rounds_played"])
+    rounds_played = int(client["rounds_played"] or 0)
     board = build_board(rounds_played)
     session["active_round"] = {"board": board}
 
@@ -320,6 +333,7 @@ def start_round():
 def finish_round():
     cid = session.get("client_id")
     active_round = session.get("active_round")
+
     if not cid or not active_round:
         return jsonify(ok=False, error="no_round"), 400
 
@@ -339,8 +353,13 @@ def finish_round():
         session.clear()
         return jsonify(ok=False, error="client_not_found"), 404
 
-    new_rounds_played = int(client["rounds_played"]) + 1
-    new_rounds_won = int(client["rounds_won"]) + (1 if outcome == "WIN" else 0)
+    if is_expired(client["expires_at"]):
+        conn.close()
+        session.clear()
+        return jsonify(ok=False, error="expired"), 403
+
+    new_rounds_played = int(client["rounds_played"] or 0) + 1
+    new_rounds_won = int(client["rounds_won"] or 0) + (1 if outcome == "WIN" else 0)
     new_current_prize = prize if outcome == "WIN" else client["current_prize"]
 
     c.execute("""
@@ -387,10 +406,13 @@ def admin():
     if request.method == "POST":
         user = request.form.get("user", "")
         password = request.form.get("password", "")
+
         if user == ADMIN_USER and password == ADMIN_PASSWORD:
             session["admin"] = True
             return redirect(url_for("dashboard"))
+
         return render_template("admin_login.html", error="Login ou senha inválidos.")
+
     return render_template("admin_login.html", error=None)
 
 
@@ -489,6 +511,7 @@ def admin_delete_client(client_id):
     c.execute("DELETE FROM clients WHERE id = ?", (client_id,))
     conn.commit()
     conn.close()
+
     return redirect(url_for("dashboard"))
 
 
@@ -505,6 +528,7 @@ def admin_clear_prize(client_id):
     )
     conn.commit()
     conn.close()
+
     return redirect(url_for("dashboard"))
 
 
