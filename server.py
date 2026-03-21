@@ -241,16 +241,18 @@ def enter():
     client = c.fetchone()
 
     if client:
+        # Mantém o prazo existente, sem reiniciar as 24h
         c.execute(
             """
             UPDATE clients
-            SET name = ?, is_active = 1, updated_at = ?, expires_at = ?
+            SET name = ?, is_active = 1, updated_at = ?
             WHERE id = ?
             """,
-            (name, now_str(), expires_in_24h(), client["id"])
+            (name, now_str(), client["id"])
         )
         client_id = client["id"]
     else:
+        # Cliente novo ganha 24h
         c.execute("""
             INSERT INTO clients (
                 name, phone, current_prize, is_active,
@@ -268,8 +270,6 @@ def enter():
     session.pop("active_round", None)
 
     return redirect(url_for("game"))
-
-
 @app.route("/game")
 def game():
     cid = session.get("client_id")
