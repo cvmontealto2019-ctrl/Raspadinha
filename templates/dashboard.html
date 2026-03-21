@@ -3,85 +3,558 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard • Biruta Park</title>
+  <title>Painel Admin • Biruta Park</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+  <style>
+    :root{
+      --adm-bg-1:#fff8ef;
+      --adm-bg-2:#fff2f8;
+      --adm-card:#ffffff;
+      --adm-text:#3b3153;
+      --adm-muted:#7c7594;
+      --adm-line:rgba(93,74,121,.10);
+      --adm-shadow:0 18px 45px rgba(90,70,120,.10);
+      --adm-shadow-soft:0 10px 24px rgba(90,70,120,.08);
+      --adm-orange:#ff7a00;
+      --adm-orange-2:#ffb347;
+      --adm-green:#1bb35f;
+      --adm-red:#d94b4b;
+      --adm-yellow:#e09b20;
+      --adm-blue:#4f86ff;
+      --adm-purple:#8d67ff;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:'Nunito',sans-serif;
+      color:var(--adm-text);
+      background:
+        radial-gradient(1200px 500px at 0% 0%, rgba(255,217,90,.24), transparent 45%),
+        radial-gradient(900px 420px at 100% 0%, rgba(255,103,168,.08), transparent 45%),
+        linear-gradient(180deg,var(--adm-bg-1),var(--adm-bg-2));
+    }
+
+    .admin-shell{
+      width:min(1320px, calc(100% - 24px));
+      margin:0 auto;
+      padding:22px 0 30px;
+    }
+
+    .admin-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+
+    .brand-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,217,90,.30);
+      color:#8a5c22;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+
+    .admin-title{
+      margin:10px 0 6px;
+      font-family:'Baloo 2',sans-serif;
+      font-size:42px;
+      line-height:.95;
+      color:var(--adm-orange);
+    }
+
+    .admin-sub{
+      margin:0;
+      color:var(--adm-muted);
+      font-size:15px;
+      line-height:1.5;
+      max-width:760px;
+    }
+
+    .logout-btn{
+      border:none;
+      border-radius:999px;
+      padding:14px 20px;
+      background:#fff;
+      color:var(--adm-text);
+      text-decoration:none;
+      font-weight:900;
+      box-shadow:inset 0 0 0 1px rgba(93,74,121,.12);
+      transition:transform .16s ease;
+    }
+
+    .logout-btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .admin-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .metric-card{
+      background:rgba(255,255,255,.90);
+      border-radius:26px;
+      box-shadow:var(--adm-shadow);
+      padding:20px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .metric-card::after{
+      content:"";
+      position:absolute;
+      width:90px;
+      height:90px;
+      border-radius:50%;
+      right:-18px;
+      top:-18px;
+      background:rgba(255,217,90,.18);
+    }
+
+    .metric-card span{
+      display:block;
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+      color:#8d84a1;
+      position:relative;
+      z-index:1;
+    }
+
+    .metric-card strong{
+      display:block;
+      margin-top:8px;
+      font-size:36px;
+      line-height:1;
+      position:relative;
+      z-index:1;
+    }
+
+    .panel-card{
+      background:rgba(255,255,255,.92);
+      border-radius:28px;
+      box-shadow:var(--adm-shadow);
+      padding:18px;
+      margin-bottom:18px;
+    }
+
+    .panel-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .panel-title{
+      margin:0;
+      font-family:'Baloo 2',sans-serif;
+      font-size:32px;
+      line-height:.95;
+      color:var(--adm-text);
+    }
+
+    .panel-mini{
+      font-size:13px;
+      color:var(--adm-muted);
+      font-weight:700;
+    }
+
+    .table-shell{
+      overflow:auto;
+      border-radius:20px;
+      background:#fff;
+      box-shadow:inset 0 0 0 1px rgba(93,74,121,.08);
+    }
+
+    table{
+      width:100%;
+      min-width:1180px;
+      border-collapse:collapse;
+    }
+
+    thead th{
+      position:sticky;
+      top:0;
+      z-index:1;
+      background:#fffaf2;
+      color:#8c849e;
+      font-size:12px;
+      letter-spacing:.45px;
+      text-transform:uppercase;
+      font-weight:900;
+      padding:14px 12px;
+      text-align:left;
+      border-bottom:1px solid var(--adm-line);
+      white-space:nowrap;
+    }
+
+    tbody td{
+      padding:14px 12px;
+      border-bottom:1px solid var(--adm-line);
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    tbody tr:hover{
+      background:rgba(255,248,239,.55);
+    }
+
+    .name-cell{
+      min-width:220px;
+    }
+
+    .name-main{
+      font-weight:900;
+      color:var(--adm-text);
+      line-height:1.2;
+    }
+
+    .name-sub{
+      margin-top:4px;
+      color:var(--adm-muted);
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .prize-pill{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.25;
+      background:#fff7eb;
+      color:#8a5c22;
+      box-shadow:inset 0 0 0 1px rgba(255,183,71,.20);
+    }
+
+    .prize-pill.empty{
+      background:#f7f6fb;
+      color:#8d84a1;
+      box-shadow:inset 0 0 0 1px rgba(141,132,161,.16);
+    }
+
+    .mini-stat{
+      font-weight:900;
+      font-size:15px;
+    }
+
+    .time-stack{
+      display:grid;
+      gap:5px;
+    }
+
+    .time-absolute{
+      font-size:12px;
+      color:var(--adm-muted);
+      font-weight:700;
+    }
+
+    .countdown-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+      background:#eefaf2;
+      color:#1f8b4c;
+      box-shadow:inset 0 0 0 1px rgba(27,179,95,.15);
+    }
+
+    .countdown-badge.warning{
+      background:#fff7e8;
+      color:#aa6e00;
+      box-shadow:inset 0 0 0 1px rgba(224,155,32,.18);
+    }
+
+    .countdown-badge.urgent{
+      background:#fff0f0;
+      color:#c13d3d;
+      box-shadow:inset 0 0 0 1px rgba(217,75,75,.18);
+      animation:admPulse 1s infinite;
+    }
+
+    .countdown-badge.expired{
+      background:#f7f6fb;
+      color:#8d84a1;
+      box-shadow:inset 0 0 0 1px rgba(141,132,161,.16);
+      animation:none;
+    }
+
+    .status-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:7px 11px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .status-green{
+      background:#eefaf2;
+      color:#18884a;
+      box-shadow:inset 0 0 0 1px rgba(27,179,95,.14);
+    }
+
+    .status-red{
+      background:#fff0f0;
+      color:#c23d3d;
+      box-shadow:inset 0 0 0 1px rgba(217,75,75,.14);
+    }
+
+    .status-yellow{
+      background:#fff7e8;
+      color:#a36b00;
+      box-shadow:inset 0 0 0 1px rgba(224,155,32,.16);
+    }
+
+    .actions-wrap{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      min-width:280px;
+    }
+
+    .inline-form{
+      display:inline;
+      margin:0;
+    }
+
+    .action-btn,
+    .action-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:9px 12px;
+      border:none;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:900;
+      text-decoration:none;
+      cursor:pointer;
+      transition:transform .16s ease;
+      white-space:nowrap;
+    }
+
+    .action-btn:hover,
+    .action-link:hover{
+      transform:translateY(-1px);
+    }
+
+    .action-link.edit{
+      background:#eef4ff;
+      color:#3d6fe4;
+      box-shadow:inset 0 0 0 1px rgba(79,134,255,.16);
+    }
+
+    .action-btn.renew{
+      background:#eefaf2;
+      color:#1d8f4f;
+      box-shadow:inset 0 0 0 1px rgba(27,179,95,.16);
+    }
+
+    .action-btn.clear{
+      background:#f4f0ff;
+      color:#744bde;
+      box-shadow:inset 0 0 0 1px rgba(141,103,255,.16);
+    }
+
+    .action-btn.delete{
+      background:#fff0f0;
+      color:#c84242;
+      box-shadow:inset 0 0 0 1px rgba(217,75,75,.16);
+    }
+
+    .history-result{
+      display:inline-flex;
+      align-items:center;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .result-win{
+      background:#eefaf2;
+      color:#1d8f4f;
+    }
+
+    .result-lose{
+      background:#fff0f0;
+      color:#c84242;
+    }
+
+    @keyframes admPulse{
+      0%{transform:scale(1)}
+      50%{transform:scale(1.03)}
+      100%{transform:scale(1)}
+    }
+
+    @media (max-width: 980px){
+      .admin-grid{
+        grid-template-columns:1fr;
+      }
+
+      .admin-shell{
+        width:min(100% - 16px, 1320px);
+        padding:16px 0 24px;
+      }
+
+      .admin-title{
+        font-size:34px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <main class="page-shell">
-    <header class="dash-top">
+  <main class="admin-shell">
+    <header class="admin-top">
       <div>
-        <div class="auth-badge">BIRUTA PARK</div>
-        <h1 class="dash-title">Painel da campanha</h1>
-        <p class="dash-sub">Clientes, cortesia atual e histórico da Caça aos Ovos Mágica</p>
+        <div class="brand-badge">BIRUTA PARK • PAINEL ADMIN</div>
+        <h1 class="admin-title">Painel da campanha</h1>
+        <p class="admin-sub">
+          Acompanhe clientes, prêmios conquistados, tempo restante de cada cadastro e o histórico completo da Caça aos Ovos Mágica.
+        </p>
       </div>
-      <a class="btn btn-light" href="{{ url_for('admin_logout') }}">Sair</a>
+
+      <a class="logout-btn" href="{{ url_for('admin_logout') }}">Sair</a>
     </header>
 
-    <section class="stats-grid">
-      <article class="stat-card">
+    <section class="admin-grid">
+      <article class="metric-card">
         <span>Clientes cadastrados</span>
         <strong>{{ total_clients }}</strong>
       </article>
-      <article class="stat-card">
+
+      <article class="metric-card">
         <span>Rodadas jogadas</span>
         <strong>{{ total_rounds }}</strong>
       </article>
-      <article class="stat-card">
+
+      <article class="metric-card">
         <span>Vitórias</span>
         <strong>{{ total_wins }}</strong>
       </article>
     </section>
 
-    <section class="table-card">
-      <h2>Clientes</h2>
-      <div class="table-wrap">
+    <section class="panel-card">
+      <div class="panel-head">
+        <h2 class="panel-title">Clientes</h2>
+        <div class="panel-mini">Gestão de cadastro, prazo, status e cortesia atual</div>
+      </div>
+
+      <div class="table-shell">
         <table>
           <thead>
             <tr>
-              <th>Nome</th>
+              <th>Cliente</th>
               <th>WhatsApp</th>
               <th>Cortesia atual</th>
               <th>Rodadas</th>
               <th>Vitórias</th>
-              <th>Expira em</th>
+              <th>Prazo final</th>
+              <th>Tempo restante</th>
               <th>Situação</th>
               <th>Status</th>
               <th>Ações</th>
             </tr>
           </thead>
+
           <tbody>
             {% for client in clients %}
             <tr>
-              <td>{{ client['name'] }}</td>
+              <td class="name-cell">
+                <div class="name-main">{{ client['name'] }}</div>
+                <div class="name-sub">ID #{{ client['id'] }}</div>
+              </td>
+
               <td>{{ format_phone(client['phone']) }}</td>
-              <td>{{ client['current_prize'] if client['current_prize'] else 'Nenhuma' }}</td>
-              <td>{{ client['rounds_played'] }}</td>
-              <td>{{ client['rounds_won'] }}</td>
-              <td>{{ client['expires_at'] if client['expires_at'] else '-' }}</td>
+
               <td>
-                {% if client['expires_at'] and is_expired(client['expires_at']) %}
-                  Expirado
+                {% if client['current_prize'] %}
+                  <span class="prize-pill">{{ client['current_prize'] }}</span>
                 {% else %}
-                  Dentro do prazo
+                  <span class="prize-pill empty">Nenhuma</span>
                 {% endif %}
               </td>
+
+              <td><span class="mini-stat">{{ client['rounds_played'] }}</span></td>
+              <td><span class="mini-stat">{{ client['rounds_won'] }}</span></td>
+
               <td>
-                {{ 'Ativo' if client['is_active'] == 1 else 'Inativo' }}
+                <div class="time-stack">
+                  <div class="time-absolute">
+                    {{ client['expires_at'] if client['expires_at'] else '-' }}
+                  </div>
+                </div>
               </td>
-              <td class="actions">
-                <a class="mini-link" href="{{ url_for('admin_edit_client', client_id=client['id']) }}">Editar</a>
 
-                <form method="POST" action="{{ url_for('admin_reset_expiration', client_id=client['id']) }}" class="inline-form">
-                  <button class="mini-btn" type="submit">Renovar 24h</button>
-                </form>
+              <td>
+                <span
+                  class="countdown-badge {% if client['expires_at'] and is_expired(client['expires_at']) %}expired{% endif %}"
+                  data-expires="{{ client['expires_at'] if client['expires_at'] else '' }}"
+                >
+                  {{ remaining_time(client['expires_at']) }}
+                </span>
+              </td>
 
-                <form method="POST" action="{{ url_for('admin_clear_prize', client_id=client['id']) }}" class="inline-form">
-                  <button class="mini-btn" type="submit">Limpar cortesia</button>
-                </form>
+              <td>
+                {% if client['expires_at'] and is_expired(client['expires_at']) %}
+                  <span class="status-pill status-red">Expirado</span>
+                {% else %}
+                  <span class="status-pill status-green">Dentro do prazo</span>
+                {% endif %}
+              </td>
 
-                <form method="POST" action="{{ url_for('admin_delete_client', client_id=client['id']) }}" class="inline-form" onsubmit="return confirm('Excluir este cliente?');">
-                  <button class="mini-btn danger" type="submit">Excluir</button>
-                </form>
+              <td>
+                {% if client['is_active'] == 1 %}
+                  <span class="status-pill status-yellow">Ativo</span>
+                {% else %}
+                  <span class="status-pill status-red">Inativo</span>
+                {% endif %}
+              </td>
+
+              <td>
+                <div class="actions-wrap">
+                  <a class="action-link edit" href="{{ url_for('admin_edit_client', client_id=client['id']) }}">
+                    Editar
+                  </a>
+
+                  <form method="POST" action="{{ url_for('admin_reset_expiration', client_id=client['id']) }}" class="inline-form">
+                    <button class="action-btn renew" type="submit">Renovar 24h</button>
+                  </form>
+
+                  <form method="POST" action="{{ url_for('admin_clear_prize', client_id=client['id']) }}" class="inline-form">
+                    <button class="action-btn clear" type="submit">Limpar cortesia</button>
+                  </form>
+
+                  <form method="POST" action="{{ url_for('admin_delete_client', client_id=client['id']) }}" class="inline-form" onsubmit="return confirm('Excluir este cliente?');">
+                    <button class="action-btn delete" type="submit">Excluir</button>
+                  </form>
+                </div>
               </td>
             </tr>
             {% endfor %}
@@ -90,9 +563,13 @@
       </div>
     </section>
 
-    <section class="table-card">
-      <h2>Histórico recente</h2>
-      <div class="table-wrap">
+    <section class="panel-card">
+      <div class="panel-head">
+        <h2 class="panel-title">Histórico recente</h2>
+        <div class="panel-mini">Últimas rodadas registradas no sistema</div>
+      </div>
+
+      <div class="table-shell">
         <table>
           <thead>
             <tr>
@@ -104,14 +581,30 @@
               <th>Vidas perdidas</th>
             </tr>
           </thead>
+
           <tbody>
             {% for round in rounds %}
             <tr>
               <td>{{ round['played_at'] }}</td>
               <td>{{ round['name'] }}</td>
               <td>{{ format_phone(round['phone']) }}</td>
-              <td>{{ round['outcome'] }}</td>
-              <td>{{ round['prize'] if round['prize'] else '-' }}</td>
+
+              <td>
+                {% if round['outcome'] == 'WIN' %}
+                  <span class="history-result result-win">Vitória</span>
+                {% else %}
+                  <span class="history-result result-lose">Derrota</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if round['prize'] %}
+                  <span class="prize-pill">{{ round['prize'] }}</span>
+                {% else %}
+                  <span class="prize-pill empty">-</span>
+                {% endif %}
+              </td>
+
               <td>{{ round['lives_lost'] }}</td>
             </tr>
             {% endfor %}
@@ -120,5 +613,53 @@
       </div>
     </section>
   </main>
+
+  <script>
+    function updateCountdowns() {
+      const items = document.querySelectorAll("[data-expires]");
+
+      items.forEach((el) => {
+        const expiresAt = el.dataset.expires;
+        if (!expiresAt) {
+          el.textContent = "-";
+          el.classList.add("expired");
+          return;
+        }
+
+        const target = new Date(expiresAt.replace(" ", "T")).getTime();
+        const now = Date.now();
+        const diff = target - now;
+
+        el.classList.remove("warning", "urgent", "expired");
+
+        if (diff <= 0) {
+          el.textContent = "Expirado";
+          el.classList.add("expired");
+          return;
+        }
+
+        const totalSeconds = Math.floor(diff / 1000);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (days > 0) {
+          el.textContent = `${days}d ${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min`;
+        } else {
+          el.textContent = `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}min ${String(seconds).padStart(2, "0")}s`;
+        }
+
+        if (totalSeconds <= 1800) {
+          el.classList.add("urgent");
+        } else if (totalSeconds <= 7200) {
+          el.classList.add("warning");
+        }
+      });
+    }
+
+    updateCountdowns();
+    setInterval(updateCountdowns, 1000);
+  </script>
 </body>
 </html>
