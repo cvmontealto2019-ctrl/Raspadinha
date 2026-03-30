@@ -2,7 +2,8 @@ const BP_PRIZE_COLORS = {
   "10 CONVIDADOS ADICIONAIS": "#ff7a18",
   "15 CRIANÇAS DE 6 A 10 ANOS": "#ff5e94",
   "30 CRIANÇAS DE 0 A 8 ANOS": "#18a0fb",
-  "DESCONTO DE R$350,00": "#16a34a",
+  "DESCONTO DE R$300,00": "#16a34a",
+  "CIGARRETE": "#f97316",
   "TENTE NOVAMENTE": "#9a7d8f",
   "OVO CHOCO": "#6f4c3b"
 };
@@ -10,7 +11,7 @@ const BP_PRIZE_COLORS = {
 const BP_ROTTEN_MESSAGES = [
   "Eitaaa... esse ovo passou do ponto 🤢",
   "Ops! Você encontrou um belo ovo choco 😂",
-  "Xi... esse coelhinho escondeu o ovo errado 🫣",
+  "Xi... esse coelhinho escondeu o ovo do jeito errado 🫣",
   "Ih, esse aí tava premiado com mau cheiro 😅",
   "Socorro! Ovo choco na área 💨🐣"
 ];
