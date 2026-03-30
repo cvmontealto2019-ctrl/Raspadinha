@@ -13,15 +13,16 @@ DB_PATH = BASE_DIR / "database.sqlite3"
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "biruta-park-magic-secret")
 
-ADMIN_USER = os.environ.get("ADMIN_USER", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Biruta2026")
+ADMIN_USER = os.environ.get("ADMIN_USER", "17717592000160")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Biruta2026#")
 WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "5516997913686")
 
 PRIZES = [
     "10 CONVIDADOS ADICIONAIS",
     "15 CRIANÇAS DE 6 A 10 ANOS",
     "30 CRIANÇAS DE 0 A 8 ANOS",
-    "DESCONTO DE R$350,00",
+    "DESCONTO DE R$300,00",
+    "CIGARRETE",
 ]
 
 TRY_AGAIN = "TENTE NOVAMENTE"
