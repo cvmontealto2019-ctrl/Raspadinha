@@ -3,12 +3,13 @@ import re
 import json
 import random
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "database.sqlite3"
+BRAZIL_TZ = timezone(timedelta(hours=-3))
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "biruta-park-magic-secret")
@@ -72,7 +73,7 @@ def format_phone(phone):
 
 
 def now_dt():
-    return datetime.now()
+    return datetime.now(BRAZIL_TZ)
 
 
 def now_str():
@@ -87,7 +88,9 @@ def parse_dt(value):
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        dt = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        return
+        dt.replace(tzinfo=BRAZIL_TZ)
     except Exception:
         return None
 
